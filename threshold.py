@@ -11,7 +11,7 @@ csv_files = glob.glob(folder_path + '/*.csv')
 data_frames = []
 
 for file in csv_files:
-    df = pd.read_csv(file)
+    df = pd.read_csv(file, header = None)
     data_frames.append(df)
     
 #convert each DataFrame to a NumPy array by using the values attribute.
@@ -21,22 +21,12 @@ for df in data_frames:
     arr = df.values
     arrays.append(arr)
 
-#138 csv files in Unhinhibited, so len(arrays) = 138
-#for arridx in range(len(arrays)):
 
-for row in arrays[0]:
-    for i in range(3,len(row)):
-        if row[i] > 0:
-            cocol = row[i-1]
-            #print(cocol, i-1)
+#print(arrays[0].shape[1])
+for i in range(len(arrays)):
+    for j in range(3,arrays[i].shape[1]):
+        if arrays[i][0,j] >0: 
+        
+            print(j)
             break
-    break
-
-
-for j in range(arrays[0].shape[1]):
-    if arrays[0][0,j] > 0:
-        print(j)
-            
-
-
 
