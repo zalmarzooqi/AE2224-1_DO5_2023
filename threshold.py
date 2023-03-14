@@ -21,6 +21,22 @@ for df in data_frames:
     arr = df.values
     arrays.append(arr)
 
-print(len(arrays))
+#138 csv files in Unhinhibited, so len(arrays) = 138
+#for arridx in range(len(arrays)):
+
+for row in arrays[0]:
+    for i in range(3,len(row)):
+        if row[i] > 0:
+            cocol = row[i-1]
+            #print(cocol, i-1)
+            break
+    break
+
+
+for j in range(arrays[0].shape[1]):
+    if arrays[0][0,j] > 0:
+        print(j)
+            
+
 
 
