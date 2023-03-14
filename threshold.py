@@ -21,12 +21,14 @@ for df in data_frames:
     arr = df.values
     arrays.append(arr)
 
+percent = 50 #%
 
 #print(arrays[0].shape[1])
 for i in range(len(arrays)):
+    totalpix = arrays[i][0, 3:arrays[i].shape[1]+1].sum()
+    #print(totalpix)
     for j in range(3,arrays[i].shape[1]):
-        if arrays[i][0,j] >0: 
-        
-            print(j)
+        if arrays[i][0,j] > 0:
+            #print(j)
             break
-
+print(arrays[0].shape[1])
