@@ -3,7 +3,7 @@ import glob
 import os
 
 #use the glob module to get a list of all CSV files in the folder.
-folder_path = 'C:/Users/mglcz/OneDrive - Delft University of Technology/Project Q3 BSc-2/AE2224-1_DO5_2023/Immersion Uninhibited/LocalAnalysis_Margin=004px_time=10800/1_LocalImgAnal_Num'
+folder_path = 'Immersion Uninhibited/LocalAnalysis_Margin=004px_time=10800/1_LocalImgAnal_Num'
 folder_path = os.path.abspath(folder_path)
 csv_files = glob.glob(folder_path + '/*.csv')
 
