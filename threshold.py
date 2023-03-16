@@ -1,6 +1,8 @@
 import pandas as pd
 import glob
 import os
+import numpy as np
+import matplotlib as plt
 
 #use the glob module to get a list of all CSV files in the folder.
 folder_path = 'Immersion Uninhibited/LocalAnalysis_Margin=004px_time=10800/1_LocalImgAnal_Num'
@@ -23,12 +25,45 @@ for df in data_frames:
 
 percent = 50 #%
 
-#print(arrays[0].shape[1])
+sigcollst = []
+
 for i in range(len(arrays)):
-    totalpix = arrays[i][0, 3:arrays[i].shape[1]+1].sum()
-    #print(totalpix)
+    totalpix = arrays[i][0, 3:arrays[i].shape[1]].sum()
     for j in range(3,arrays[i].shape[1]):
         if arrays[i][0,j] > 0:
-            #print(j)
+            sigcol = j 
+            sigcollst.append(sigcol)
+            #print('Total number of pixels =', totalpix, '1st Column w/ pixels =', j)
             break
-print(arrays[0].shape[1])
+
+#rows = files, columns = timesteps, values = percentages of corrosion
+matrixsize = (len(arrays), arrays[0].shape[0])
+matrixpercent = np.zeros(matrixsize)
+
+for i in range(len(arrays)):
+    totalpix = arrays[i][0, 3:arrays[i].shape[1]].sum()
+    for j in range(arrays[i].shape[0]):
+        corpixels = arrays[i][j, 3:sigcollst[i]].sum()
+        corpercent = corpixels / totalpix * 100
+        if j == 0:
+            matrixpercent[i,j] = corpercent
+        else:
+            matrixpercent[i,j] = corpercent - matrixpercent[i,j-1]
+            
+print(matrixpercent)
+
+
+
+
+
+
+        
+
+
+
+
+    
+
+
+
+
