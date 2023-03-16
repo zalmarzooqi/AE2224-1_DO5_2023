@@ -74,7 +74,7 @@ for i in range(len(arrays)):
     plt.plot(timesteps_unin, matrixpercentabs[i])
     plt.xlabel('time [s]')
     plt.ylabel('Percetage [%]')
-    plt.ylim(0,120)
+    plt.ylim(0,110)
     plt.savefig(f'unin_abs_corr_to_time_10800/plot_{file_list[i]}.png')
     plt.clf()
 
