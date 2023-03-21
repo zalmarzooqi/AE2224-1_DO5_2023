@@ -32,7 +32,7 @@ for file in file_dirs:
     file_dir = os.path.join(folder_dir, file)
     # noinspection PyTypeChecker
     data = pd.read_excel(file_dir, "Sheet1", usecols='A, B, AC')    # A is ROI, B is Area, AC is Type
-    # iterate over the different types of particles
+    # Iterate over the different types of particles
     for phase in types:
         data_filter = data[data.Type == phase]                  # Filter out the wanted type
         data_sorted = data_filter.sort_values(['Area', 'ROI'])  # Sort by area
@@ -44,3 +44,17 @@ for file in file_dirs:
         data_sorted.to_excel(writer, sheet_name=phase)
         writer.close()
     i += 1
+
+    # Sort for Geometry
+    data_geom = data[(data.Type == types[0]) | (data.Type == types[1]) | (data.Type == types[2])] # Filter out unknown types
+    lower_q = data_geom.quantile(0.25, numeric_only=True)[1]         # Find lower quantile
+    upper_q = data_geom.quantile(0.75, numeric_only=True)[1]         # Find upper quantile
+    data_geom = data_geom[data_geom.Area >= lower_q - (upper_q - lower_q) * 1.5]    # Filter out low outliers
+    data_geom = data_geom[data_geom.Area <= upper_q + (upper_q - lower_q) * 1.5]    # Filter out high outliers
+    data_geom = data_geom.sort_values(['Area', 'ROI'])                              # Sort values
+    data_geom = data_geom.reset_index(drop=True)                                    # Reset the index value and add 1
+    data_geom.index = data_geom.index + 1
+    # Write to new sheet
+    writer = pd.ExcelWriter(new_file_dir, engine='openpyxl', mode='a', if_sheet_exists='replace')
+    data_geom.to_excel(writer, sheet_name="Geometry Filtered")
+    writer.close()
