@@ -24,8 +24,6 @@ for df in data_frames:
     arr = df.values
     arrays.append(arr)
 
-percent = 50 #%
-
 sigcollst = []
 
 for i in range(len(arrays)):
