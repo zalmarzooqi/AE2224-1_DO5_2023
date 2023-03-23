@@ -37,8 +37,6 @@ positivearray = np.where(changearray > 0, changearray, 0)
 np.set_printoptions(threshold=sys.maxsize) 
 print(positivearray[0])
 
-rowsums = np.sum(positivearray, axis = 1)
-
 print(rowsums)
     
     
