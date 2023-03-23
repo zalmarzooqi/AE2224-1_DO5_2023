@@ -43,7 +43,7 @@ matrixpercentrel = np.zeros(matrixsize)
 for i in range(len(arrays)):
     totalpix = arrays[i][0, 3:arrays[i].shape[1]].sum()
     for j in range(arrays[i].shape[0]):
-        corpixels = arrays[i][j], 3:sigcollst[i]].sum()
+        corpixels = arrays[i][j, 3:sigcollst[i]].sum()
         corpercent = corpixels / totalpix * 100
         matrixpercentabs[i,j] = corpercent
         if j == 0:
