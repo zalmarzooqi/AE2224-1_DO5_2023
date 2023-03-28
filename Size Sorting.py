@@ -245,7 +245,6 @@ with open(os.path.join(new_folder_dir, "pre-processing summary.txt"), 'w') as f:
     f.write("Chosen geometry parameter: "+str(geometry_parameter)+"\nChosen filter mode: "+str(mode_selection)+"\n\n")
     for file in file_names:
         test = pd.read_excel(os.path.join(new_folder_dir, file), sheet_name=None)
-        print(test.keys())
         if "S-phase" not in test.keys():
             continue
         # Print the test type
