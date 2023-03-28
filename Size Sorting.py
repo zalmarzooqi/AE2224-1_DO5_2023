@@ -121,6 +121,7 @@ file_names = [r"uninhb_sorted.xlsx",
               r"inhb_sorted.xlsx",
               r"inhb_del_sorted.xlsx",
               r"reim_uninhb_sorted.xlsx"]
+file_name = []
 
 # Set names for the three types of particles
 types = ['S-phase', 'Theta', 'Secondary']
@@ -139,6 +140,9 @@ df = np.random.randn(1, 1)
 data = pd.DataFrame(df)
 for file in file_names:
     file_dir = os.path.join(new_folder_dir, file)
+    if not os.path.exists(file_dir):
+        # print("Error:", file, "does not exist. Skipping.")
+        continue
     writer = pd.ExcelWriter(file_dir, engine='openpyxl', mode='w')
     data.to_excel(writer, sheet_name="All")
     writer.close()
@@ -166,7 +170,8 @@ for file in file_dirs:
         file_dirs.remove(file)
         # print("Error:", file, "does not exist. Skipping.")
         continue
-    new_file_dir = os.path.join(new_folder_dir, file_names[i])
+    file_name.append(file_names[i])
+    new_file_dir = os.path.join(new_folder_dir, file_name[i])
     # Read only the wanted columns (ROI, Area, Type and geometry parameter if specified)
     data = pd.read_excel(file_dir, "Sheet1", usecols=cols)
     # Write all data to the new file
@@ -243,7 +248,7 @@ i = 0
 with open(os.path.join(new_folder_dir, "pre-processing summary.txt"), 'w') as f:
     # Print selected options
     f.write("Chosen geometry parameter: "+str(geometry_parameter)+"\nChosen filter mode: "+str(mode_selection)+"\n\n")
-    for file in file_names:
+    for file in file_name:
         test = pd.read_excel(os.path.join(new_folder_dir, file), sheet_name=None)
         if "S-phase" not in test.keys():
             continue
