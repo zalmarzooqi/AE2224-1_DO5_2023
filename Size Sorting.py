@@ -146,6 +146,9 @@ for file in file_names:
 # PREPARE ORIGINAL FILES
 for file in file_dirs:
     file_dir = os.path.join(folder_dir, file)
+    if not os.path.exists(file_dir):
+        print("Error:", file, "does not exist. Skipping.")
+        continue
     data = pd.read_excel(file_dir, "Sheet1", header=None)
     data.iloc[0, 0] = "ROI"
     if str(data.iloc[1, 0]).upper() == "NAN":
@@ -159,6 +162,10 @@ for file in file_dirs:
 for file in file_dirs:
     # Set file directories
     file_dir = os.path.join(folder_dir, file)
+    if not os.path.exists(file_dir):
+        file_dirs.remove(file)
+        # print("Error:", file, "does not exist. Skipping.")
+        continue
     new_file_dir = os.path.join(new_folder_dir, file_names[i])
     # Read only the wanted columns (ROI, Area, Type and geometry parameter if specified)
     data = pd.read_excel(file_dir, "Sheet1", usecols=cols)
@@ -237,6 +244,10 @@ with open(os.path.join(new_folder_dir, "pre-processing summary.txt"), 'w') as f:
     # Print selected options
     f.write("Chosen geometry parameter: "+str(geometry_parameter)+"\nChosen filter mode: "+str(mode_selection)+"\n\n")
     for file in file_names:
+        test = pd.read_excel(os.path.join(new_folder_dir, file), sheet_name=None)
+        print(test.keys())
+        if "S-phase" not in test.keys():
+            continue
         # Print the test type
         data = pd.read_excel(os.path.join(new_folder_dir, file), sheet_name=sheets)
         f.write("\n"+sets[i]+":")
