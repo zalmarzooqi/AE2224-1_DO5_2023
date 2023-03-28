@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import sys
 
 #use the glob module to get a list of all CSV files in the folder.
-folder_path = 'Immersion Uninhibited/LocalAnalysis_Margin=004px_time=10800/1_LocalImgAnal_Num'
-folder_path = os.path.abspath(folder_path)
+folder_path_unin_10800 = 'Immersion Uninhibited/LocalAnalysis_Margin=004px_time=10800/1_LocalImgAnal_Num'
+folder_path_unin_600 = 'Immersion Uninhibited/LocalAnalysis_Margin=004px_time=600/1_LocalImgAnal_Num'
+folder_path = os.path.abspath(folder_path_unin_10800)
 csv_files = glob.glob(folder_path + '/*.csv')
 
 #read each CSV file and store its data in a Pandas DataFrame object.
@@ -29,6 +30,7 @@ for df in data_frames:
 timesteps_unin = np.zeros(arrays[0].shape[0])
 for i in range(arrays[0].shape[0]):
     timesteps_unin[i] = arrays[0][i, 1]
+print(arrays[0].shape[0])
 
 #sum matrices
 matrixsize_sum = (len(arrays),arrays[0].shape[0])
@@ -45,7 +47,7 @@ changearray = np.zeros(matrixsize)
 for i in range(len(arrays)):
     totalpix = arrays[i][0, 3:arrays[i].shape[1]].sum()
     for row in range(arrays[i].shape[0]):
-        if row < 1566:
+        if row < 1566: #[599: (for 600 s)]
             #substract the ith+1 - ith row
             changerow = arrays[i][row+1, 2:arrays[i].shape[1]] - arrays[i][row, 2:arrays[i].shape[1]]
             changearray[row,:] = changerow
