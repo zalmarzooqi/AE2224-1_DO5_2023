@@ -26,6 +26,8 @@ for df in data_frames:
 
 sigcollst = []
 
+column = 30
+
 for i in range(len(arrays)):
     totalpix = arrays[i][0, 3:arrays[i].shape[1]].sum()
     for j in range(3,arrays[i].shape[1]):
@@ -44,6 +46,7 @@ for i in range(len(arrays)):
     totalpix = arrays[i][0, 3:arrays[i].shape[1]].sum()
     for j in range(arrays[i].shape[0]):
         corpixels = arrays[i][j, 3:sigcollst[i]].sum()
+        #corpixels = arrays[i][j, 3:column].sum()
         corpercent = corpixels / totalpix * 100
         matrixpercentabs[i,j] = corpercent
         if j == 0:
@@ -79,7 +82,8 @@ for i in range(len(arrays)):
 for i in range(len(arrays)):
     plt.plot(timesteps_unin, matrixpercentabs[i])
     plt.xlabel('time [s]')
-    plt.ylabel('Percetage Percetage of pixels crossing the COC [%]')
+    plt.ylabel('Percetage of pixels crossing the COC [%]')
+    
 plt.savefig('unin_abs_corr_to_time_10800/plot_all.png')
 
 
