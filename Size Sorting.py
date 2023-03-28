@@ -3,8 +3,8 @@ import pandas as pd
 import os
 import numpy as np
 import tkinter as tk
-import matplotlib.pyplot as plt
 from tkinter.filedialog import askdirectory
+import time
 
 
 # OPTIONS GUI
@@ -23,19 +23,22 @@ def directory_button():
 def finish_button():
     global geometry_parameter
     global mode_selection
+    global folder_mode
     # Get the chosen geometry parameter
     geometry_parameter = parameter_menu.get()
     # Get the chosen mode
     mode_selection = mode_menu.get()
+    folder_mode = folder_mode_menu.get()
     # Close the window
     window.destroy()
-    return geometry_parameter, mode_selection
+    return geometry_parameter, mode_selection, folder_mode
+
 
 
 # Set up the window
 window = tk.Tk()
 window.title("Setup")
-window.geometry("550x300")
+window.geometry("550x380")
 # Display the folder selection text
 folder_text = tk.Label(text="\nSelect the location of the \"Data\" folder."
                             "\nNote that the new files with the sorted data will also be stored in this folder, under \"Sorted Data\".")
@@ -43,13 +46,20 @@ folder_text.pack()
 # Display the folder selection button
 folder_button = tk.Button(text="Select folder", command=directory_button)
 folder_button.pack()
+folder_mode_text = tk.Label(text="Folder mode (default 0):")
+folder_mode_text.pack()
+folder_mode_menu = tk.StringVar()
+folder_mode_menu.set(0)
+mode_options = [0, 1]
+menu3 = tk.OptionMenu(window, folder_mode_menu, *mode_options)
+menu3.pack()
 # Display the chosen folder
 folder_text2 = tk.Label(text="Your folder:")
 folder_text2.pack()
 selected_folder = tk.Label(text="No folder selected", fg="red")
 selected_folder.pack()
 # Display the geometry selection text
-geometry_text = tk.Label(text="Select the parameter to be used for geometry.")
+geometry_text = tk.Label(text="\nSelect the parameter to be used for geometry.")
 geometry_text.pack()
 # Define the geometry parameter options
 geometry_options = ['None', 'Perim.', 'BX', 'BY', 'Width', 'Height',
@@ -64,7 +74,6 @@ menu.pack()
 mode_text = tk.Label(text="Choose the geometry filter mode (default 0):")
 mode_text.pack()
 # Define mode selection options
-mode_options = [0, 1]
 mode_menu = tk.StringVar()
 mode_menu.set(0)
 # Display the drop-down menu for mode selection
@@ -79,6 +88,7 @@ process_button.pack()
 # Loop window
 window.mainloop()
 
+start_time = time.time()
 # SET PARAMETERS AND CONSTANTS
 # Add exit if no folder was specified
 if "folder_dir" not in globals():
@@ -95,10 +105,16 @@ else:                                                   # Chosen geometry parame
     cols = ["ROI", "Area", str(geometry_parameter), "Type"]
 
 # Set file names within the data folder
-file_dirs = [r"1_Immersion_Uninhibited\2_Particle Map\ParticleGeomCompo_uninhb.xlsx",
-             r"2_Immersion_Inhibited\2_Particle Map\ParticleGeomCompo_inhb.xlsx",
-             r"3_Immersion_Inhibited_delayed (60 s)\2_Particle Map\ParticleGeomCompo_inhb_del.xlsx",
-             r"4_Reimmersion_Uninhibited\2_Particle Map\ParticleGeomCompo_reim_uninhb.xlsx"]
+if str(folder_mode) == "0":
+    file_dirs = [r"1_Immersion_Uninhibited\2_Particle Map\ParticleGeomCompo_uninhb.xlsx",
+                r"2_Immersion_Inhibited\2_Particle Map\ParticleGeomCompo_inhb.xlsx",
+                r"3_Immersion_Inhibited_delayed (60 s)\2_Particle Map\ParticleGeomCompo_inhb_del.xlsx",
+                r"4_Reimmersion_Uninhibited\2_Particle Map\ParticleGeomCompo_reim_uninhb.xlsx"]
+else:
+    file_dirs = [r"ParticleGeomCompo_uninhb.xlsx",
+                r"ParticleGeomCompo_inhb.xlsx",
+                r"ParticleGeomCompo_inhb_del.xlsx",
+                r"ParticleGeomCompo_reim_uninhb.xlsx"]
 
 # Set file names for the pre-processed files
 file_names = [r"uninhb_sorted.xlsx",
@@ -125,6 +141,17 @@ for file in file_names:
     file_dir = os.path.join(new_folder_dir, file)
     writer = pd.ExcelWriter(file_dir, engine='openpyxl', mode='w')
     data.to_excel(writer, sheet_name="All")
+    writer.close()
+
+# PREPARE ORIGINAL FILES
+for file in file_dirs:
+    file_dir = os.path.join(folder_dir, file)
+    data = pd.read_excel(file_dir, "Sheet1", header=None)
+    data.iloc[0, 0] = "ROI"
+    if str(data.iloc[1, 0]).upper() == "NAN":
+        data.drop(index=data.index[1], axis=0, inplace=True)
+    writer = pd.ExcelWriter(file_dir, engine="openpyxl", mode="w")
+    data.to_excel(writer, sheet_name="Sheet1", header=None)
     writer.close()
 
 # SORTING
@@ -234,9 +261,9 @@ def done_button():
 # Set up window
 window2 = tk.Tk()
 window2.title("Done!")
-window2.geometry("200x70")
+window2.geometry("220x90")
 # Display text
-message = tk.Label(text="Pre-processing has finished.\n")
+message = tk.Label(text=f"\nPre-processing has finished in {time.time()-start_time:.2f} s.\n")
 message.pack()
 # Display button
 done_button = tk.Button(text="Done", command=done_button)
