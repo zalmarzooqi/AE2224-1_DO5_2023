@@ -1,5 +1,4 @@
 from commonimports import *
-import matplotlib.pyplot as plt
 
 
 # Function Definition
@@ -66,6 +65,8 @@ def coc_plotting(data_folder, output_folder, cases):
 
                         # Find the timesteps
                         file_timesteps.append(data.iloc[j, 1])
+                        if file_timesteps[-1] >= 74000:
+                            break
 
                     # Plotting single particle
                     plt.plot(file_timesteps, file_matrix_abs)
@@ -90,9 +91,3 @@ def coc_plotting(data_folder, output_folder, cases):
             plt.ylim(0, 110)
             plt.savefig(os.path.join(main_out_path, f"{case}/{type}/plot_all_particles.png"))
             plt.clf()
-
-
-if __name__ == "__main__":
-    data_folder = r"Output_test"
-    output_folder = r""
-    coc_plotting(data_folder, output_folder)

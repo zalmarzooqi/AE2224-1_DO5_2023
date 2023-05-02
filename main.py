@@ -1,5 +1,4 @@
 from commonimports import *
-import matplotlib.pyplot as plt
 
 setup_gui_2.setup_gui()
 start_time = time.time()
@@ -86,10 +85,10 @@ for case in file_dirs_used:
 
     i += 1
 # Plot the COC vs time graphs
-# try:
-coc_plotting.coc_plotting(os.path.join(output_path, "Sorted ROIs"), output_path, csvs_used)
-# except FileNotFoundError:
-#     error_coding.error_message(7)
+try:
+    coc_plotting.coc_plotting(os.path.join(output_path, "Sorted ROIs"), output_path, csvs_used)
+except FileNotFoundError:
+    error_coding.error_message(7)
 
 
 execution_summary.create_summary(output_path, setup_gui_2.geometry_parameters, setup_gui_2.filter_mode,

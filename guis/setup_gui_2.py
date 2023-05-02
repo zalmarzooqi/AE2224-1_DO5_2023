@@ -177,7 +177,7 @@ def setup_gui():
     output_button.grid(column=1, row=3)
     folder_mode_cb = tk.Checkbutton(folder_frame, text="One folder?", font=default_font, variable=folder_mode_sel, state="disabled")
     folder_mode_cb.grid(column=2, row=2)
-    data_path_sel = tk.Label(folder_frame, text="Deprecated, data is now bundled", fg="green")
+    data_path_sel = tk.Label(folder_frame, text="Deprecated, data is bundled", fg="green")
     data_path_sel.grid(column=1, row=5, columnspan=2, sticky=tk.W)
     output_path_sel = tk.Label(folder_frame, text="No folder selected!", fg="red")
     output_path_sel.grid(column=1, row=6, columnspan=2, sticky=tk.W)
@@ -265,7 +265,8 @@ def setup_gui():
     filter_option_known = tk.Radiobutton(geometry_frame, text="Known", variable=filter_mode_sel,
                                          value="Known", font=default_font)
     filter_option_known.grid(column=0, row=9)
-    filter_option_full = tk.Radiobutton(geometry_frame, text="Full", variable=filter_mode_sel, value="Full", font=default_font)
+    filter_option_full = tk.Radiobutton(geometry_frame, text="Full", variable=filter_mode_sel,
+                                        value="Full", font=default_font)
     filter_option_full.grid(column=1, row=9)
 
     # Composition Frame
@@ -286,10 +287,7 @@ def setup_gui():
     # Do Frame
     # Set Labels
     tk.Label(do_frame, text="Execute", font=title_font).grid(column=0, row=0, columnspan=3)
-    tk.Label(do_frame, text="this does not do anything at this moment,\n but will be used in later versions when more\n"
-                            "functionality is added to the program. Currently \nit is just there for me to see how it\n"
-                            "will look in the end. \nthanks and goodbye", font=default_font).grid(column=0,
-                                                                                                row=1, columnspan=3)
+    tk.Label(do_frame, text="this is for later", font=default_font).grid(column=0, row=1, columnspan=3)
     # Define Variables
     do_excel_filter = tk.IntVar()
     do_roi_sort = tk.IntVar()
@@ -315,3 +313,7 @@ def setup_gui():
 
     # Loop window
     root.mainloop()
+
+
+if __name__ == "__main__":
+    setup_gui()
