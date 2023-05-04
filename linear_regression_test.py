@@ -25,7 +25,7 @@ type_matrix_rel = []
 type_timesteps = []
 
 # Iterate over the different particles/csv files
-file_path = r"../Data/CSV/1_Uninhibited/0428-1481.csv"
+file_path = r"Immersion Uninhibited/LocalAnalysis_Margin=004px_time=10800/1_LocalImgAnal_Num/0318-0990.csv"
 main_out_path = r""
 data = pd.read_csv(file_path, header=None)          # Read file
 total_pixels = data.iloc[0, 3:].sum()               # Get the total amount of pixels
