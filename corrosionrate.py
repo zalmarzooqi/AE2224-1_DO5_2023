@@ -1,26 +1,28 @@
 from corrosiononsetcolumn  import *
 from scipy.optimize import curve_fit
 
-def current_density(t, k1, k2):
-    return k1 / np.sqrt(t) * 1 / np.sqrt(1 + k2*t)
+#def current_density(t, k1, k2):
+    #return k1 / np.sqrt(t) * 1 / np.sqrt(1 + k2*t)
+def current_density(t,b,alpha):
+    return b*np.exp(-alpha*t)
 
 if timesteps_unin[0] == 0:
     timesteps_unin[0] = 0.00000000000001
 
 def fit_particle(row):
     popt, pcov = curve_fit(current_density, timesteps_unin, row, p0=[1e-8, 1e-5])
-    return popt[0]*10e6, popt[1] # Return k1 (in A/m*s**0.5) and k2    
+    return popt[0], popt[1] # Return k1 (in A/m*s**0.5) and k2    
 
 # Apply the fit_particle function to each row of i_matrix
 results = np.apply_along_axis(fit_particle, 1, matrixpercentabs)
 
 # Extract the estimated values of k1 and k2 from the results array
-k1_value = results[:, 0]
-k2_value = results[:, 1]
+b = results[:, 0]
+alpha = results[:, 1]
 
 print(timesteps_unin)
-print('k1 values:', k1_value)
-print('k2 values:', k2_value)
+print('k1 values:', b)
+print('k2 values:', alpha)
 
 steps = [i for i in range(1, (len(arrays) + 1), 1)]
 # # steps = np.matrix(steps)
