@@ -11,7 +11,7 @@ folder_path = 'Immersion Uninhibited/LocalAnalysis_Margin=004px_time=10800/1_Loc
 folder_path_unin_S = 'Sorted/S-phase' 
 folder_path_unin_Secondary = 'Sorted/Secondary'
 folder_path_unin_Theta = 'Sorted/Theta'
-folder_path = os.path.abspath(folder_path) #select folder path
+folder_path = os.path.abspath(folder_path_unin_S) #select folder path
 csv_files = glob.glob(folder_path + '/*.csv')
 
 #read each CSV file and store its data in a Pandas DataFrame object.
@@ -80,18 +80,18 @@ for i in range(len(arrays)):
     plt.xlabel('time [s]')
     plt.ylabel('Percetage of pixels crossing the COC [%]')
     plt.ylim(0,110)
-    plt.title(label = f'Particle {file_list[i]}')
-    #plt.title(label = f'Theta-phase particle {file_list[i]}') #change particle type
-    plt.savefig(f'1. Uninhibited plots/unin_abs_corr_to_time_10800/plot_{file_list[i]}.png') #change particle type
+    #plt.title(label = f'Particle {file_list[i]}')
+    plt.title(label = f'S-phase particle {file_list[i]}') #change particle type
+    plt.savefig(f'1. Uninhibited plots/unin_S_abs_corr_to_time_10800/plot_{file_list[i]}.png') #change particle type
     plt.clf()
 
 for i in range(len(arrays)):
     plt.plot(timesteps_unin, matrixpercentabs[i])
     plt.xlabel('time [s]')
     plt.ylabel('Percetage of pixels crossing the COC [%]')
-plt.title(label = 'All particles') #change particle type  
-#plt.title(label = 'Theta-phase particles') #change particle type   
-plt.savefig('1. Uninhibited plots/unin_abs_corr_to_time_10800/plot_all.png') #change particle type
+#plt.title(label = 'All particles') #change particle type  
+plt.title(label = 'S-phase particles') #change particle type   
+plt.savefig('1. Uninhibited plots/unin_S_abs_corr_to_time_10800/plot_all.png') #change particle type
 plt.show()
 plt.clf()
 
