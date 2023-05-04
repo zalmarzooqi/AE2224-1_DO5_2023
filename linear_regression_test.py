@@ -70,21 +70,21 @@ file_matrix_abs_smooth = np.convolve(file_matrix_abs, weights, 'valid')
 file_matrix_abs_smooth_list = file_matrix_abs_smooth.tolist()
 
 # Find t_start and slope
-start_val = 87.5
+start_val = 5
 for val in file_matrix_abs_smooth:
     if val > start_val:
         t_start = file_timesteps[file_matrix_abs_smooth_list.index(val)]
         val_start = val
         break
-slope_val = 90
+slope_val = 20
 for val in file_matrix_abs_smooth:
     if val > slope_val:
         t_slope = file_timesteps[file_matrix_abs_smooth_list.index(val)]
         val_slope = val
         break
 slope_est = (val_slope - val_start) / (t_slope - t_start)
-y_intercept = val_slope-t_slope*slope_est
-model_list = [slope_est * (i-t_start)+y_intercept for i in file_timesteps]
+
+model_list = [slope_est * (i-t_start) for i in file_timesteps]
 # Find t_star
 max_ratio = 3
 for i in range(1, len(file_matrix_abs_smooth_list)):
