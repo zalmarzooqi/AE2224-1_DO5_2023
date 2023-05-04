@@ -1,7 +1,7 @@
 from corrosiononsetcolumn  import *
 from scipy.optimize import curve_fit
 
-def current_density_lin(t, k1, k2):
+def current_density_sqrt(t, k1, k2):
     return k1 / np.sqrt(t) * 1 / np.sqrt(1 + k2*t)
 def current_density_exp(t,b,alpha, c):
     return b*np.exp(-alpha*t)+c
@@ -9,24 +9,32 @@ def current_density_exp(t,b,alpha, c):
 def current_density_ln(t, r, p):
     return p * np.log(r*t)
 
+def current_density_lin(t, t_star, c1, c2):
+    if t > t_star:
+        return t_star * c1 + (t - t_star) * c2
+    else:
+        return t * c1
+
 if timesteps_unin[0] == 0:
     timesteps_unin[0] = 0.00000000000001
 
 def fit_particle(row):
-    popt, pcov = curve_fit(current_density_ln, timesteps_unin, row, p0=[0.5, 0.01])
-    return popt[0], popt[1] # Return k1 (in A/m*s**0.5) and k2
+    popt, pcov = curve_fit(current_density_lin, timesteps_unin, row, p0=[0.5, 0.01, 2000])
+    return popt[0], popt[1], popt[2] # Return k1 (in A/m*s**0.5) and k2
 
 # Apply the fit_particle function to each row of i_matrix
 results = np.apply_along_axis(fit_particle, 1, matrixpercentabs)
 
 # Extract the estimated values of k1 and k2 from the results array
-r = results[:, 0]
-p = results[:, 1]
+c1 = results[:, 0]
+c2 = results[:, 1]
+t_star = results[:, 2]
 
 
 print(timesteps_unin)
-print('r values:', r)
-print('p values:', p)
+print('c1 values:', c1)
+print('c2 values:', c2)
+print('t_star values:', t_star)
 
 
 steps = [i for i in range(1, (len(arrays) + 1), 1)]
@@ -61,14 +69,23 @@ plt.plot(timesteps_unin,verify_value)
 plt.show()
 '''
 
-
-verify_values = []
-
+'''
 a = np.matrix(r)
 b = np.matrix(p)
 
 
 verify_value = current_density_ln(timesteps_unin, a[:,0], b[:,0])
+verify_value = verify_value.T
+plt.plot(timesteps_unin,verify_value)
+plt.ylim(0, 100)
+plt.show()
+'''
+a = np.matrix(c1)
+b = np.matrix(c2)
+t_st = np.matrix(t_star)
+
+
+verify_value = current_density_ln(timesteps_unin, t_st[:,0], a[:,0], b[:,0])
 verify_value = verify_value.T
 plt.plot(timesteps_unin,verify_value)
 plt.ylim(0, 100)
