@@ -25,7 +25,8 @@ type_matrix_rel = []
 type_timesteps = []
 
 # Iterate over the different particles/csv files
-file_path = r"../Data/CSV/1_Uninhibited/0428-1481.csv"
+#file_path = r"../Data/CSV/1_Uninhibited/0428-1481.csv"
+file_path = r"Sorted\S-phase/0329-1028.csv"
 main_out_path = r""
 data = pd.read_csv(file_path, header=None)          # Read file
 total_pixels = data.iloc[0, 3:].sum()               # Get the total amount of pixels
@@ -86,7 +87,7 @@ y_intercept = val_slope-t_slope*slope_est
 model_list = [slope_est * (i-t_start)+y_intercept for i in file_timesteps]
 # Find t_star
 max_ratio = 3
-for i in range(1, len(file_matrix_abs_smooth_list)):
+for i in range(1, file_matrix_abs_smooth_list.index(val_slope),-1 ):
     diff1 = model_list[i-1] - file_matrix_abs_smooth_list[i-1]
     diff2 = model_list[i] - file_matrix_abs_smooth_list[i]
     ratio = diff2 / diff1
@@ -98,7 +99,7 @@ for i in range(1, len(file_matrix_abs_smooth_list)):
 plt.plot(file_timesteps, file_matrix_abs, label="Data")
 plt.plot(file_timesteps[:-(window_size-1)], file_matrix_abs_smooth, label="Smoothed Data")
 plt.plot(file_timesteps, model_list, label="Model k1")
-plt.vlines(t_star, 0, 100, linestyles="dashed", label="t_star")
+#plt.vlines(t_star, 0, 100, linestyles="dashed", label="t_star")
 plt.xlabel("Time [s]")
 plt.ylabel("Percentage of pixels crossing the COC [%]")
 plt.title(f"Particle test")
