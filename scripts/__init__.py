@@ -3,3 +3,7 @@ import scripts.writing
 import scripts.roi_sorting
 import scripts.execution_summary
 import scripts.coc_plotting
+import scripts.data_smoothing
+import scripts.class_check
+import scripts.linear_regression
+import scripts.geometry_plotting

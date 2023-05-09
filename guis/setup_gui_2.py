@@ -1,17 +1,8 @@
 from commonimports import *
 
 
-def setup_gui():
+def setup_gui(data_path):
     # Define Button Commands
-    def dpb_onclick():
-        global data_path
-        data_path = askdirectory()
-        if len(data_path) > 0:
-            if len(data_path) < 25:
-                data_path_sel.config(text=data_path, fg="blue")
-            else:
-                data_path_sel.config(text=".../"+data_path.split(r"/")[-1], fg="blue")
-
     def opb_onclick():
         global output_path
         output_path = askdirectory()
@@ -59,19 +50,19 @@ def setup_gui():
         geom_round_sel.set(0)
 
     def rb_onclick():
-        global data_path, output_path
-        data_path = ""
+        global output_path
         output_path = ""
-        data_path_sel.config(text="No folder selected!", fg="red")
         output_path_sel.config(text="No folder selected!", fg="red")
-        folder_mode_sel.set(0)
         ncb_onclick()
         npb_onclick()
         filter_mode_sel.set("Known")
         composition_mode.set("Standard")
+        do_coc_plotting.set(1)
+        do_execution_summary.set(1)
 
     def fb_onclick():
-        global geometry_parameters, compo_mode, filter_mode, folder_mode, cases
+        global geometry_parameters, compo_mode, filter_mode, cases
+        global exec_coc_plotting, exec_execution_summary
         geometry_parameters = []
         if geom_perim_sel.get() == 1:
             geometry_parameters.append("Perim.")
@@ -104,16 +95,21 @@ def setup_gui():
         if case_4_sel.get() == 1:
             cases.append("Reimmersion")
 
-        folder_mode = folder_mode_sel.get()
         filter_mode = filter_mode_sel.get()
         compo_mode = composition_mode.get()
+
+        exec_coc_plotting = do_coc_plotting.get()
+        exec_execution_summary = do_execution_summary.get()
 
         root.destroy()
 
     # Window
     root = tk.Tk()
-    root.title("Setup2")
+    root.title("Corrosion Analysis Setup")
     root.resizable(False, False)
+    icon_path = os.path.join(data_path, "Icons/corrosion.png")
+    icon = tk.PhotoImage(file=icon_path)
+    root.iconphoto(False, icon)
 
     # Fonts
     title_font = tk.font.Font(root, family="Segoe UI", size=13, weight="bold", underline=True)
@@ -150,7 +146,7 @@ def setup_gui():
                         relief=tk.SUNKEN,
                         padx=5,
                         pady=5)
-    # do_frame.grid(column=1, row=2, sticky=tk.NSEW)
+    do_frame.grid(column=1, row=2, sticky=tk.NSEW)
     bottom_frame = tk.Frame(root,
                             bd=10,
                             relief=tk.SUNKEN,
@@ -161,26 +157,17 @@ def setup_gui():
     # Folders Frame
     # Set Labels
     tk.Label(folder_frame, text="Folders", font=title_font).grid(column=0, row=0, columnspan=3)
-    tk.Label(folder_frame, text="Select the following folders", font=middle_font).grid(column=0, row=1, columnspan=3)
-    tk.Label(folder_frame, text="Data Folder:", font=default_font).grid(column=0, row=2, sticky=tk.W)
-    tk.Label(folder_frame, text="Output Folder:", font=default_font).grid(column=0, row=3, sticky=tk.W)
-    tk.Label(folder_frame, text="Selected Folders", font=middle_font).grid(column=0, row=4, sticky=tk.W)
-    tk.Label(folder_frame, text="Data:", font=default_font).grid(column=0, row=5, sticky=tk.W)
-    tk.Label(folder_frame, text="Output:", font=default_font).grid(column=0, row=6, sticky=tk.W)
+    tk.Label(folder_frame, text="Select the following folder", font=middle_font).grid(column=0, row=1, columnspan=3)
+    tk.Label(folder_frame, text="Output Folder:", font=default_font).grid(column=0, row=2, sticky=tk.W)
+    tk.Label(folder_frame, text="Selected Folders", font=middle_font).grid(column=0, row=3, sticky=tk.W)
+    tk.Label(folder_frame, text="Output:", font=default_font).grid(column=0, row=5, sticky=tk.W)
     # Define Variables
-    folder_mode_sel = tk.IntVar()
-    folder_mode_sel.set(0)
+
     # Variable Widgets
-    data_button = tk.Button(folder_frame, text="Select Folder", command=dpb_onclick, state="disabled")
-    data_button.grid(column=1, row=2)
     output_button = tk.Button(folder_frame, text="Select Folder", command=opb_onclick)
-    output_button.grid(column=1, row=3)
-    folder_mode_cb = tk.Checkbutton(folder_frame, text="One folder?", font=default_font, variable=folder_mode_sel, state="disabled")
-    folder_mode_cb.grid(column=2, row=2)
-    data_path_sel = tk.Label(folder_frame, text="Deprecated, data is bundled", fg="green")
-    data_path_sel.grid(column=1, row=5, columnspan=2, sticky=tk.W)
+    output_button.grid(column=1, row=2)
     output_path_sel = tk.Label(folder_frame, text="No folder selected!", fg="red")
-    output_path_sel.grid(column=1, row=6, columnspan=2, sticky=tk.W)
+    output_path_sel.grid(column=1, row=5, columnspan=3, sticky=tk.W)
 
     # Cases Frame
     # Set Labels
@@ -287,18 +274,21 @@ def setup_gui():
     # Do Frame
     # Set Labels
     tk.Label(do_frame, text="Execute", font=title_font).grid(column=0, row=0, columnspan=3)
-    tk.Label(do_frame, text="this is for later", font=default_font).grid(column=0, row=1, columnspan=3)
+    tk.Label(do_frame, text="Select what you would like to do:", font=middle_font).grid(column=0, row=1, columnspan=3)
     # Define Variables
-    do_excel_filter = tk.IntVar()
-    do_roi_sort = tk.IntVar()
-    do_summary = tk.IntVar()
+    do_coc_plotting = tk.IntVar()
+    do_coc_plotting.set(1)
+    do_visual_regression = tk.IntVar()
+    do_visual_regression.set(1)
+    do_execution_summary = tk.IntVar()
+    do_execution_summary.set(0)
     # Variable Widgets
-    do_ef_cb = tk.Checkbutton(do_frame, text="Excel Filtering", variable=do_excel_filter)
-    do_ef_cb.grid(column=0, row=2, sticky=tk.W)
-    do_rs_cb = tk.Checkbutton(do_frame, text="ROI Sorting", variable=do_roi_sort)
-    do_rs_cb.grid(column=0, row=3, sticky=tk.W)
-    do_s_cb = tk.Checkbutton(do_frame, text="Execution Summary", variable=do_summary)
-    do_s_cb.grid(column=0, row=4, sticky=tk.W)
+    do_cp_cb = tk.Checkbutton(do_frame, text="COC Plotting", variable=do_coc_plotting)
+    do_cp_cb.grid(column=0, row=2, sticky=tk.W)
+    do_vr_cb = tk.Checkbutton(do_frame, text="Add regression visualization", variable=do_coc_plotting, state="disabled")
+    do_vr_cb.grid(column=0, row=3, sticky=tk.W)
+    do_es_cb = tk.Checkbutton(do_frame, text="Execution Summary", variable=do_execution_summary)
+    do_es_cb.grid(column=0, row=4, sticky=tk.W)
 
     # Bottom Frame
     # Set Labels
@@ -316,4 +306,4 @@ def setup_gui():
 
 
 if __name__ == "__main__":
-    setup_gui()
+    setup_gui(r"../Data")

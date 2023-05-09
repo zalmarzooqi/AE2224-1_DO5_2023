@@ -1,7 +1,7 @@
 from commonimports import *
 
 
-def close_gui(time="__seconds__"):
+def close_gui(data_path, time="__seconds__"):
     if time != "__seconds__":
         time_used = round(time, 2)
     else:
@@ -13,7 +13,9 @@ def close_gui(time="__seconds__"):
     root = tk.Tk()
     # root.geometry("220x110")
     root.title("Done!")
-    # set checkmark icon
+    icon_path = os.path.join(data_path, "Icons/done.png")
+    icon = tk.PhotoImage(file=icon_path)
+    root.iconphoto(False, icon)
 
     # Fonts
     title_font = tk.font.Font(root, family="Segoe UI", size=13, weight="bold", underline=True)
@@ -41,3 +43,7 @@ def close_gui(time="__seconds__"):
     done_button.grid(column=0, row=2, pady=15)
 
     root.mainloop()
+
+
+if __name__ == "__main__":
+    close_gui(r"../Data", 10)

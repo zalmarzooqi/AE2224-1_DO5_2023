@@ -1,15 +1,17 @@
 from commonimports import *
 
 
-def error_message(error_code="not_found"):
+def error_message(data_path, error_code="not_found"):
     def onclick():
         root.destroy()
         sys.exit()
 
 
     root = tk.Tk()
-    # root.geometry("600x100")
     root.title("Error")
+    icon_path = os.path.join(data_path, "Icons/error.png")
+    icon = tk.PhotoImage(file=icon_path)
+    root.iconphoto(False, icon)
 
     # Fonts
     title_font = tk.font.Font(root, family="Segoe UI", size=13, weight="bold", underline=True)
@@ -47,3 +49,7 @@ def error_message(error_code="not_found"):
     root.mainloop()
 
     sys.exit()
+
+
+if __name__ == "__main__":
+    error_message(r"../Data", "test message")
