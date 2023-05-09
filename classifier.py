@@ -87,4 +87,4 @@ for k in range (2,len(theta[0])):
     axis[2].plot(v,w_convolved)
     axis[2].set_title("Theta-Phase")
 plt.show()
-
+plt.savefig("Reimmersion_sorted_plots")
