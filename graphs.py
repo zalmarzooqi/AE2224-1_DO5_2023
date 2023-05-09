@@ -28,9 +28,9 @@ for k2 in range (1,len(data2[0])):
     y2=column(data2,k2)
     for m in range(len(y2)):
         y2[m]=100*y2[m]
-    axis[0].set(xlabel="Time [s]",ylabel="Percentage of changed pixels [%]",xlim=(0,x2[-1]))
-    axis[0].plot(x2,y2)
-    axis[0].set_title("Immersion Uninhibited")
+    axis[1].set(xlabel="Time [s]",ylabel="Percentage of changed pixels [%]",xlim=(0,x2[-1]))
+    axis[1].plot(x2,y2)
+    axis[1].set_title("Immersion Uninhibited")
 with open('CSVDelayed.csv', newline='') as csvfile:
     data3 = list(csv.reader(csvfile))
 print(len(data3))
@@ -39,8 +39,8 @@ for k3 in range (1,len(data3[0])):
     y3=column(data3,k3)
     for m in range(len(y3)):
         y3[m]=100*y3[m]
-    axis[0].set(xlabel="Time [s]",ylabel="Percentage of changed pixels [%]",xlim=(0,x3[-1]))
-    axis[0].plot(x3,y3)
-    axis[0].set_title("Delayed")
+    axis[2].set(xlabel="Time [s]",ylabel="Percentage of changed pixels [%]",xlim=(0,x3[-1]))
+    axis[2].plot(x3,y3)
+    axis[2].set_title("Delayed")
     #plt.plot(x,y)
 plt.show()
