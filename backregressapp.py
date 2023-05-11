@@ -111,12 +111,15 @@ for j in range(data.shape[0]):
     file_timesteps.append(data.iloc[j, 1])
     if file_timesteps[-1] >= 74000:
         break
-
+def data_smoothing(original_list, window_size=15):
+    weights = np.repeat(1.0, window_size) / window_size
+    smooth_list = np.convolve(original_list, weights, 'valid')
+    return smooth_list.tolist()
 # Smoothing data
 window_size = 15
 weights = np.repeat(1.0, window_size) / window_size
 file_matrix_abs_smooth = np.convolve(file_matrix_abs, weights, 'valid')
-file_matrix_abs_smooth_list = file_matrix_abs_smooth.tolist()
+file_matrix_abs_smooth_list = data_smoothing(file_matrix_abs_smooth)
 
 t_start, k1, y_inter1, model_listk1 = slope_k1(file_matrix_abs_smooth,file_timesteps,file_matrix_abs_smooth_list)
 t_start, k2, y_inter2, model_listk2 = slope_k2(file_matrix_abs_smooth,file_timesteps,file_matrix_abs_smooth_list)
