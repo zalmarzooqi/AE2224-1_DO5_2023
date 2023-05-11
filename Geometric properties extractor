@@ -6,8 +6,8 @@ import os
 import copy
 
 
-p = ['Data', 'Sorted Data'] #List of parts from the path on Github
-p = ['D:', '\Tudelft', '2nd year', 'Project', 'Q3', 'Sorted Data', 'Output'] # List of parts from the path on the computer (instead of a "/", another part is added)
+p = [ 'Data', 'Sorted Data'] #List of parts from the path on Github
+#p = ['D:', '\Tudelft', '2nd year', 'Project', 'Q3', 'Sorted Data', 'Output'] # List of parts from the path on the computer (instead of a "/", another part is added)
 
 case_list = ['Sorted_ParticleGeomCompo_inhb_del.xlsx', 'Sorted_ParticleGeomCompo_inhb.xlsx', 'Sorted_ParticleGeomCompo_reim_uninhb.xlsx', 'Sorted_ParticleGeomCompo_uninhb.xlsx'] #Files where the information is stored
 type_list = ['ROI', 'Area', 'Circ.', 'Feret', 'AR', 'Solidity'] #Information that will be extracted
