@@ -3,9 +3,9 @@ from scripts import data_smoothing, class_check, linear_regression
 
 
 # Function Definition
-def coc_plotting(case, type, csv_file, output_folder):
+def coc_plotting(case, type, csv_file, output_folder, mode=1):
     # Set file and folder paths
-    main_out_path = os.path.join(output_folder, f"Plots/{case}/{type}")
+    main_out_path = os.path.join(output_folder, f"Plots/COC/{case}/{type}")
     file_name = csv_file.split("\\")[-1]
     if not os.path.exists(main_out_path):
         os.makedirs(main_out_path)
@@ -70,7 +70,8 @@ def coc_plotting(case, type, csv_file, output_folder):
         # Plotting single particle
         plt.plot(file_timesteps, file_matrix_abs, label="Data")
         plt.plot(file_timesteps, smooth_abs, label="Smooth Data")
-        linear_regression.linear_regression_plotting(k1_model, k2_model, t_s, t_k, t_f)
+        if mode == 1:
+            linear_regression.linear_regression_plotting(k1_model, k2_model, t_s, t_k, t_f)
         plt.legend()
         plt.xlabel("Time [s]")
         plt.ylabel("Percentage of pixels crossing the COC [%]")
@@ -87,7 +88,7 @@ def coc_plotting(case, type, csv_file, output_folder):
 
 def coc_plotting_all(case, type, csv_folder, output_folder):
     # Set file and folder paths
-    main_out_path = os.path.join(output_folder, f"Plots/{case}/{type}")
+    main_out_path = os.path.join(output_folder, f"Plots/COC/{case}/{type}")
 
     if not os.path.exists(main_out_path):
         os.makedirs(main_out_path)
@@ -118,7 +119,7 @@ def coc_plotting_all(case, type, csv_folder, output_folder):
                 # Some files are weird and do not have any values past the "C" column in the csv
                 # Currently I just skip these files/particles, but we may need to take a better look at them
                 if i == data.shape[1]-1:
-                    print(f"No pixels outside of col. C found in file {file} ({case}, {type})")
+                    # print(f"No pixels outside of col. C found in file {file} ({case}, {type})")
                     sig_col = "Stop"
             if sig_col == "Stop":
                 continue
@@ -139,7 +140,7 @@ def coc_plotting_all(case, type, csv_folder, output_folder):
                     break
 
             if not class_check.classA_check(type, file_matrix_abs, file_timesteps):
-                print("ALL:",file, "is not a class A particle, skipping...")
+                # print("ALL:",file, "is not a class A particle, skipping...")
                 continue
 
             # Add the particle parameters to the type list, so it can be used in the plot of all particles

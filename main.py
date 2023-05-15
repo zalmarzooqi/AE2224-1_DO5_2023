@@ -76,7 +76,7 @@ for case in file_dirs_used:
     try:
         excel_filtering.excel_filtering(excel_path, sorted_excel_path, cols, setup_gui_2.filter_mode)
     except FileNotFoundError:
-        error_coding.error_message(data_path, 5)
+        error_coding.error_message(data_path, 2)
 
     try:
         csv_path = os.path.join(sys._MEIPASS, data_path, "CSV", csvs_used[i])
@@ -87,7 +87,7 @@ for case in file_dirs_used:
     try:
         roi_sorting.roi_sort(sorted_excel_path, csv_path, csv_output_path)
     except FileNotFoundError:
-        error_coding.error_message(data_path, 6)
+        error_coding.error_message(data_path, 2)
 
     i += 1
 
@@ -101,7 +101,7 @@ try:
                 os.makedirs(os.path.join(output_path, "Extracted Parameters"))
 
             # Iterate over the different cases
-            for case in csvs_used:
+            for i, case in enumerate(csvs_used):
 
                 # Create an Excel file to store the parameters in
                 df = pd.DataFrame([[0, 1], [2, 3]])
@@ -120,7 +120,8 @@ try:
 
                         # Set path, find regression parameters and plot
                         file_path = os.path.join(folder_path, csv_file)
-                        coc_regression_out = coc_plotting.coc_plotting(case, type, file_path, output_path)
+                        coc_regression_out = coc_plotting.coc_plotting(case, type, file_path, output_path,
+                                                                       mode=setup_gui_2.exec_add_lr_visuals)
 
                         # If parameters are found, add them to list
                         if coc_regression_out:
@@ -133,13 +134,19 @@ try:
                     regr_output = pd.DataFrame(parameters, columns=["ROI", "k1", "k2", "t_s", "t_k", "t_f"])
                     writing.writer_add(param_out_path, regr_output, type)
 
+                # Plot the regression parameters against physical parameters
+                excel_path = os.path.join(output_path, f"Filtered Excels/Filtered_{file_dirs_used[i]}")
+                geom_plot_output_path = os.path.join(output_path, f"Plots/Geometry/{case}")
+                case_name = case[2:]
+                geometry_plotting.extracted_plotting(param_out_path, excel_path, geom_plot_output_path, case_name)
+
         # Stop if the csv files are not found
         except FileNotFoundError:
-            error_coding.error_message(data_path, 7)
+            error_coding.error_message(data_path, 2)
 
 # Stop in case of many scenarios (error in code, error in setup GUI, ...)
 except AttributeError:
-    error_coding.error_message(data_path, 8)
+    error_coding.error_message(data_path, 5)
 
 # Create execution summary
 try:
@@ -147,7 +154,7 @@ try:
         execution_summary.create_summary(output_path, setup_gui_2.geometry_parameters, setup_gui_2.filter_mode,
                                          setup_gui_2.cases, setup_gui_2.compo_mode)
 except AttributeError:
-    error_coding.error_message(data_path, 9)
+    error_coding.error_message(data_path, 5)
 
 # Show final GUI and open the output folder
 close_gui.close_gui(data_path, time.time()-start_time)

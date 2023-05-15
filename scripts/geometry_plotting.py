@@ -4,6 +4,10 @@ from commonimports import *
 # Function Definition
 def extracted_plotting(parameter_path, excel_path, output_path, case):
 
+    # Create output path if it does not exist
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
     # Open the Excel file with the area and geometry data
     particlemap_data = pd.read_excel(excel_path, sheet_name="Geometry Filtered")
 

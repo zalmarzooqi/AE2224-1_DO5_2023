@@ -58,11 +58,14 @@ def setup_gui(data_path):
         filter_mode_sel.set("Known")
         composition_mode.set("Standard")
         do_coc_plotting.set(1)
-        do_execution_summary.set(1)
+        do_execution_summary.set(0)
+        do_visual_regression.set(1)
+        case_1_sel.set(1)
+        geom_circ_sel.set(1)
 
     def fb_onclick():
         global geometry_parameters, compo_mode, filter_mode, cases
-        global exec_coc_plotting, exec_execution_summary
+        global exec_coc_plotting, exec_execution_summary, exec_add_lr_visuals
         geometry_parameters = []
         if geom_perim_sel.get() == 1:
             geometry_parameters.append("Perim.")
@@ -100,8 +103,16 @@ def setup_gui(data_path):
 
         exec_coc_plotting = do_coc_plotting.get()
         exec_execution_summary = do_execution_summary.get()
+        exec_add_lr_visuals = do_visual_regression.get()
 
         root.destroy()
+
+    def cp_cb():
+        if do_coc_plotting.get() == 0:
+            do_visual_regression.set(0)
+            do_vr_cb.config(state="disabled")
+        elif do_coc_plotting.get() == 1:
+            do_vr_cb.config(state="active")
 
     # Window
     root = tk.Tk()
@@ -175,7 +186,7 @@ def setup_gui(data_path):
     tk.Label(cases_frame, text="Select which cases are to be analyzed", font=middle_font).grid(column=0, row=1, columnspan=3)
     # Define Variables
     case_1_sel = tk.IntVar()
-    case_1_sel.set(0)
+    case_1_sel.set(1)
     case_2_sel = tk.IntVar()
     case_2_sel.set(0)
     case_3_sel = tk.IntVar()
@@ -282,13 +293,17 @@ def setup_gui(data_path):
     do_visual_regression.set(1)
     do_execution_summary = tk.IntVar()
     do_execution_summary.set(0)
+    do_image_subtraction = tk.IntVar()
+    do_image_subtraction.set(0)
     # Variable Widgets
-    do_cp_cb = tk.Checkbutton(do_frame, text="COC Plotting", variable=do_coc_plotting)
+    do_cp_cb = tk.Checkbutton(do_frame, text="COC Plotting", variable=do_coc_plotting, command=cp_cb)
     do_cp_cb.grid(column=0, row=2, sticky=tk.W)
-    do_vr_cb = tk.Checkbutton(do_frame, text="Add regression visualization", variable=do_coc_plotting, state="disabled")
-    do_vr_cb.grid(column=0, row=3, sticky=tk.W)
+    do_is_cb = tk.Checkbutton(do_frame, text="Image Subtraction", variable=do_image_subtraction, state="disabled")
+    do_is_cb.grid(column=0, row=3, sticky=tk.W)
+    do_vr_cb = tk.Checkbutton(do_frame, text="Add regression visualization", variable=do_visual_regression)
+    do_vr_cb.grid(column=0, row=4, sticky=tk.W)
     do_es_cb = tk.Checkbutton(do_frame, text="Execution Summary", variable=do_execution_summary)
-    do_es_cb.grid(column=0, row=4, sticky=tk.W)
+    do_es_cb.grid(column=0, row=5, sticky=tk.W)
 
     # Bottom Frame
     # Set Labels
