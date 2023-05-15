@@ -7,3 +7,4 @@ import scripts.data_smoothing
 import scripts.class_check
 import scripts.linear_regression
 import scripts.geometry_plotting
+import scripts.data_correction

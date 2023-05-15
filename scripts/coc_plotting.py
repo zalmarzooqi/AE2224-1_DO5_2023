@@ -50,27 +50,39 @@ def coc_plotting(case, type, csv_file, output_folder):
             file_timesteps.append(data.iloc[j, 1])
             if file_timesteps[-1] >= 74000:
                 break
-        classA = class_check.classA_check(type, file_matrix_abs, file_timesteps)
-        if not classA:
+
+        # Skip particle if it is not of class A
+        if not class_check.classA_check(type, file_matrix_abs, file_timesteps):
             print(file_name[:-4], "is not a class A particle, skipping...")
             return
 
-        # Smooth data
+        # Smoothen data
         smooth_abs = data_smoothing.data_smoothing(file_matrix_abs)
+
         # Linear regression
-        roi = csv_file[-12:-4]
-        roi, k1, k2, t_onset, t_star, t_100 = linear_regression.linear_regression(roi, file_timesteps, smooth_abs)
+        roi = int(csv_file[-12:-9])
+        lin_regr_output = linear_regression.linear_regression(roi, smooth_abs, file_timesteps)
+        if not lin_regr_output:
+            return False
+        else:
+            roi, k1_vals, k2_vals, t_s, t_k, t_f, k1_model, k2_model = lin_regr_output
+
         # Plotting single particle
         plt.plot(file_timesteps, file_matrix_abs, label="Data")
-        plt.plot(file_timesteps[:-(len(file_timesteps)-len(smooth_abs))], smooth_abs, label="Smooth Data")
-        linear_regression.linear_regression_plotting(k1, k2, t_onset, t_star, t_100, file_timesteps)
+        plt.plot(file_timesteps, smooth_abs, label="Smooth Data")
+        linear_regression.linear_regression_plotting(k1_model, k2_model, t_s, t_k, t_f)
         plt.legend()
         plt.xlabel("Time [s]")
         plt.ylabel("Percentage of pixels crossing the COC [%]")
         plt.title(f"{case[2:]}, {type} Particle {int(csv_file[-12:-9])}")
         plt.ylim(0, 110)
+        plt.xlim(0, 8000)
         plt.savefig(os.path.join(main_out_path, f"plot_{file_name[:-4]}.png"))
         plt.clf()
+
+        # Save values in list
+        coc_regression_output = [roi, k1_vals[0], k2_vals[0], t_s, t_k, t_f]
+        return coc_regression_output
 
 
 def coc_plotting_all(case, type, csv_folder, output_folder):
@@ -125,9 +137,9 @@ def coc_plotting_all(case, type, csv_folder, output_folder):
                 file_timesteps.append(data.iloc[j, 1])
                 if file_timesteps[-1] >= 74000:
                     break
-            classA = class_check.classA_check(type, file_matrix_abs, file_timesteps)
-            if not classA:
-                print(file, "is not a class A particle, skipping...")
+
+            if not class_check.classA_check(type, file_matrix_abs, file_timesteps):
+                print("ALL:",file, "is not a class A particle, skipping...")
                 continue
 
             # Add the particle parameters to the type list, so it can be used in the plot of all particles
@@ -142,5 +154,6 @@ def coc_plotting_all(case, type, csv_folder, output_folder):
     plt.ylabel("Percentage of pixels crossing the COC [%]")
     plt.title(f"{case[2:]}, all {type} particles")
     plt.ylim(0, 110)
+    plt.xlim(0, 8000)
     plt.savefig(os.path.join(main_out_path, f"plot_all_particles.png"))
     plt.clf()

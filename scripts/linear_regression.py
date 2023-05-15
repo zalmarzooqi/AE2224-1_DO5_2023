@@ -1,116 +1,110 @@
 from commonimports import *
 
 
-def linear_regression(roi, time_list, data_list, initial_value=5, slope_value=20, slope_value2=80, value=2):
-    # Find t_onset and t_slope
-    for val in data_list:
-        if val >= initial_value:
-            t_onset = time_list[data_list.index(val)]
+def linear_regression(roi, data_list, time_list, corr_start_val=7, corr_end_val=99):
+
+    # Find straight line values
+    for i, val in enumerate(data_list):
+        if val >= corr_start_val:
+            str_val1 = val
+            t_s = time_list[i]
             break
-    for val in data_list:
-        if val >= slope_value:
-            t_slope = time_list[data_list.index(val)]
-            break
-    for val in data_list:
-        if val >= slope_value2:
-            t_slope2 = time_list[data_list.index(val)]
+    for i, val in enumerate(data_list):
+        if val >= corr_end_val:
+            str_val2 = val
+            t_f = time_list[i]
             break
 
+    # Find straight line slope
+    try:
+        sls = (str_val2 - str_val1) / (t_f - t_s)
+    except NameError:
+        print(f"Particle {roi} does not reach 100% corroded. Skipping...")
+        return False
 
-    # Find k1
-    k1 = (data_list[time_list.index(t_slope)] - data_list[time_list.index(t_onset)]) / (t_slope - t_onset)
+    # Find distances between data and straight line
+    p_slope = -1 / sls
+    sli = sls * -t_s + corr_start_val
+    dists = []
+    dist_times = []
+    for i, time in enumerate(time_list):
+        if t_s <= time <= t_f:
+            val = data_list[i]
+            p_intersect = val - p_slope * time
+            d_time = (sli - p_intersect) / (p_slope - sls)
+            d_val = p_slope * d_time + p_intersect
 
-    # Find t_star (method 1)
-    model_values = [k1 * i for i in time_list]
-    upper_bin_values = [i + value for i in model_values]
-    lower_bin_values = [i - value for i in model_values]
-    for i, value in enumerate(data_list):
-        if time_list[i] >= t_onset:
-            if lower_bin_values[i] >= value or value >= upper_bin_values[i]:
-                t_star = time_list[i]
-                # print("data:", data_list)
-                # print("model:", model_values)
-                # print("upper", upper_bin_values)
-                # print("lower:", lower_bin_values)
-                # print("value:", value)
-                # print("t_star:", t_star)
-                # print("t_onset:", t_onset)
-                break
+            d = math.sqrt((val - d_val)**2 + (time - d_time)**2)
+            dists.append(d)
+            dist_times.append(time)
 
-    # # Find t_star (method 2)
-    # model_values = [k1 * i for i in time_list]
-    # max_ratio = 3
-    # for i in range(len(1, model_values)):
-    #     diff1 = model_values[i-1] - data_list[i-1]
-    #     diff2 = model_values[i] - data_list[i]
-    #     ratio = diff2 / diff1
-    #     if ratio >= max_ratio:
-    #         t_star = time_list[i]
-    #         break
+    # Find t_k from minimum distance
+    t_k = dist_times[dists.index(max(dists))]
 
-    # Find t_100
-    t_100 = 0
-    for val in data_list:
-        if val == 100:
-            t_100 = time_list[data_list.index(val)]
-            break
-    if t_100 == 0:
-        print(f"Particle {roi} does not reach 100% corrosion level.")
-        t_100 = time_list[len(data_list)-1]
+    # Find k1 using linear regression
+    k1_values = data_list[time_list.index(t_s):time_list.index(t_k)]
+    k1_times = time_list[time_list.index(t_s):time_list.index(t_k)]
+    k1 = LinearRegression().fit(np.array(k1_times).reshape(-1, 1), np.array(k1_values).reshape(-1, 1))
 
-    # # Find k2 (method 1)
-    # k2 = (data_list[time_list.index(t_100)] - data_list[time_list.index(t_slope2)]) / (t_100 - t_slope2)
+    # Find k2 using linear regression
+    k2_values = data_list[time_list.index(t_k):time_list.index(t_f)]
+    k2_times = time_list[time_list.index(t_k):time_list.index(t_f)]
+    k2 = LinearRegression().fit(np.array(k2_times).reshape(-1, 1), np.array(k2_values).reshape(-1, 1))
 
-    # Find k2 (method 2)
-    k2 = (data_list[time_list.index(t_100)] - model_values[time_list.index(t_star)]) / (t_100 - t_star)
+    # Set variables
+    k1_coef = k1.coef_[0]
+    k1_intercept = k1.intercept_[0]
+    k2_coef = k2.coef_[0]
+    k2_intercept = k2.intercept_[0]
 
-    return roi, k1, k2, t_onset, t_star, t_100
+    # Update t_k
+    t_k_updated = float(str((k2.intercept_[0] - k1.intercept_[0]) / (k1.coef_[0] - k2.coef_[0]))[1:-1])
+
+    # Update t_f
+    t_f_updated = float(str((100 - k2.intercept_[0]) / k2.coef_[0])[1:-1])
+
+    # Create model for k1
+    k1_model = []
+    for i, time in enumerate(time_list):
+        if time >= t_s:
+            if time <= t_k_updated:
+                k1_model.append([time, k1_coef * time + k1_intercept])
+
+    # Create model for k2
+    k2_model = []
+    for i, time in enumerate(time_list):
+        if time >= t_k_updated:
+            if time <= t_f_updated:
+                k2_model.append([time, k2_coef * time + k2_intercept])
+
+    # Finalize
+    k1_vals = [float(str(k1_coef)[1:-1]), float(str(k1_intercept)[1:-1])]
+    k2_vals = [float(str(k2_coef)[1:-1]), float(str(k2_intercept)[1:-1])]
+
+    return roi, k1_vals, k2_vals, t_s, t_k_updated, t_f_updated, k1_model, k2_model
 
 
-def linear_regression_plotting(k1, k2, t_onset, t_star, t_100, time_list, value=2):
-    k1_time = []
-    k1_list = []
-    k2_time = []
-    k2_list = []
-    # print(time_list)
-    # print(t_onset, t_star, t_100)
-    for time in time_list:
-        if t_onset <= time <= t_star:
-            k1_time.append(time)
-            k1_list.append(k1 * time)
-            # print(time)
-            # print(k1_time)
-        elif t_star <= time <= t_100:
-            if len(k2_time) == 0:
-                k2_time.append(k1_time[-1])
-                k2_list.append(k1_list[-1])
-            # print("k2 now")
-            # print(time)
-            # print(k2_time)
-            k2_time.append(time)
-            k2_list.append(k2 * (time - k1_time[-1]) + k1_list[-1])
-    k1_lower = [i - value for i in k1_list]
-    k1_upper = [i + value for i in k1_list]
-    k2_lower = [i - value for i in k2_list]
-    k2_upper = [i + value for i in k2_list]
-    plt.plot(k1_time, k1_list, "-", label="k1 model")
-    plt.plot(k2_time, k2_list, "-", label="k2 model")
-    plt.plot(k1_time, k1_upper, "r--", label="model bounds")
-    plt.plot(k1_time, k1_lower, "r--")
-    plt.plot(k2_time, k2_upper, "r--")
-    plt.plot(k2_time, k2_lower, "r--")
-    plt.vlines(t_onset, 0, 110, "gray", linestyles="dashed")
-    plt.vlines(t_star, 0, 110, "gray", linestyles="dashed")
-    plt.vlines(t_100, 0, 110, "gray", linestyles="dashed")
-    return
+def linear_regression_plotting(k1_model, k2_model, t_s, t_k, t_f):
 
-if __name__ == "__main__":
-    roi = 1
-    k1 = 1
-    k2 = 0.1
-    t_onset = 5
-    t_star = 55
-    t_100 = 89
-    time_list = [i for i in range(100)]
-    linear_regression_plotting(k1, k2, t_onset, t_star, t_100, time_list, value=5)
-    plt.show()
+    # Extract values from k1_model array
+    k1_l = []
+    k1_t = []
+    for elem in k1_model:
+        k1_l.append(elem[1])
+        k1_t.append(elem[0])
+
+    # Extract values from k2_model array
+    k2_l = []
+    k2_t = []
+    for elem in k2_model:
+        k2_l.append(elem[1])
+        k2_t.append(elem[0])
+
+    # Plot t_s, t_k, t_f as vertical dashed lines
+    plt.vlines(t_s, 0, 110, "gray", linestyles="dashed", label="t_s")
+    plt.vlines(t_k, 0, 110, "cyan", linestyles="dashed", label="t_k")
+    plt.vlines(t_f, 0, 110, "yellow", linestyles="dashed", label="t_f")
+
+    # Plot k1 and k2 models
+    plt.plot(k1_t, k1_l, "green", label="k1 model")
+    plt.plot(k2_t, k2_l, "red", label="k2 model")

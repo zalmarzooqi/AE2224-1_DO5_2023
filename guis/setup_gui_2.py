@@ -205,7 +205,7 @@ def setup_gui(data_path):
     geom_perim_sel = tk.IntVar()
     geom_perim_sel.set(0)
     geom_circ_sel = tk.IntVar()
-    geom_circ_sel.set(0)
+    geom_circ_sel.set(1)
     geom_feret_sel = tk.IntVar()
     geom_feret_sel.set(0)
     geom_feretx_sel = tk.IntVar()

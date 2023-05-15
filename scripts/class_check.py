@@ -1,18 +1,24 @@
 from commonimports import *
 
 
+# Function Definition
 def classA_check(type, data_list, time_list):
+
+    # Set threshold to consider if it is of class A or not
     perc_threshold = 60
+
     sphase = False
+    # Check which type the particle is and return evaluation time (S-phase is always considered class A)
     if type == "Secondary":
         eval_time = 4000
     elif type == "Theta":
         eval_time = 2000
     if type == "S-phase":
-        sphase = True
         classA = True
+        sphase = True
 
-    if sphase == False:
+    # Check if threshold is met at evaluation time and return True or False
+    if not sphase:
         for i in range(len(data_list)):
             val = data_list[i]
             time = time_list[i]
@@ -21,6 +27,7 @@ def classA_check(type, data_list, time_list):
                     classA = True
                 else:
                     classA = False
+
     return classA
 
 if __name__ == "__main__":

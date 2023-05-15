@@ -1,7 +1,6 @@
 from commonimports import *
 
 
-def data_smoothing(original_list, window_size=15):
-    weights = np.repeat(1.0, window_size) / window_size
-    smooth_list = np.convolve(original_list, weights, 'valid')
-    return smooth_list.tolist()
+def data_smoothing(original_list, window_size=51, poly_order=3):
+    smoothed_data = scipy.signal.savgol_filter(original_list, window_size, poly_order)
+    return smoothed_data.tolist()

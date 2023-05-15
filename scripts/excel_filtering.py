@@ -1,5 +1,5 @@
 from commonimports import *
-from scripts import writing
+from scripts import writing, data_correction
 
 # Set Constants
 types = ["S-phase", "Theta", "Secondary"]
@@ -14,8 +14,9 @@ def excel_filtering(excel_path, sorted_path, cols, filter_mode):
         df.index += 1
         return df
 
-    # Read Excel file, reset indices and write to new file
+    # Read Excel file, reset indices, correct the data and write to new file
     data = pd.read_excel(excel_path, "Sheet1", usecols=cols)
+    data_correction.data_correction(data)
     data = indexing(data)
     writing.writer_new(sorted_path, data, "All")
 

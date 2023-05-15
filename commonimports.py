@@ -3,6 +3,7 @@ import os
 import sys
 import time
 import shutil
+import math
 
 # Installed modules
 import numpy as np
@@ -13,6 +14,7 @@ import tkinter as tk
 from tkinter import ttk
 import tkinter.font
 from tkinter.filedialog import askdirectory, askopenfilename
+from sklearn.linear_model import LinearRegression
 
 # Custom modules
 from guis import *

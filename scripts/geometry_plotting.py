@@ -2,33 +2,79 @@ from commonimports import *
 
 
 # Function Definition
-def geometry_plotting(excel_file_dir, output_path, geometry_parameter, rois, k1, k2, t_onset, t_star):
-    data = pd.read_excel(excel_file_dir, sheet_name="Sheet1", usecols=["ROI", geometry_parameter])
-    particle_data = []
-    labels = ["k1", "k2", "t_onset", "t_star"]
-    for i, roi in enumerate(rois):
-        one_particle = [roi, k1[i], k2[i], t_onset[i], t_star[i], data[data.ROI == roi][geometry_parameter].values[0]]
-        particle_data.append(one_particle)
+def extracted_plotting(parameter_path, excel_path, output_path, case):
 
-    for i in range(4):
-        x = [j[-1] for j in particle_data]
-        y = [k[i+1] for k in particle_data]
-        plt.scatter(x, y)
-        plt.title(f"{geometry_parameter} vs {labels[i]}")
-        plt.xlabel(geometry_parameter)
-        plt.ylabel(labels[i])
-        plt.savefig(os.path.join(output_path, f"geometry_plot_{labels[i]}.png"))
+    # Open the Excel file with the area and geometry data
+    particlemap_data = pd.read_excel(excel_path, sheet_name="Geometry Filtered")
+
+    # Set the columns to only the area and geometry parameters
+    columns = particlemap_data.columns.tolist()[2:-1]
+
+    # Read the extracted parameter Excel files, one per case
+    s_extracted_data = pd.read_excel(parameter_path, sheet_name="S-phase")
+    th_extracted_data = pd.read_excel(parameter_path, sheet_name="Theta")
+    sec_extracted_data = pd.read_excel(parameter_path, sheet_name="Secondary")
+
+    # Set a list to the five extracted parameters
+    params = s_extracted_data.columns.tolist()[2:]
+
+    # Iterate over the different geometry parameters
+    for i in range(len(columns)):
+
+        # Set figure title
+        plt.suptitle(f"{columns[i]} vs regression parameters ({case})")
+
+        # Iterate over the different extracted parameters
+        for j in range(len(params)):
+
+            # Set empty lists for plots (x_parameters = x list, x_extracted = y list)
+            s_parameters = []
+            s_extracted = []
+            th_parameters = []
+            th_extracted = []
+            sec_parameters = []
+            sec_extracted = []
+
+            # Iterate over the different ROIs in the filtered geometry Excel file
+            for roi in particlemap_data["ROI"].values:
+
+                # Check whether the particle has extracted parameters (S-phase)
+                if roi in s_extracted_data["ROI"].values:
+
+                    # Add x and y values
+                    s_parameters.append(particlemap_data[particlemap_data["ROI"] == roi][columns[i]].values[0])
+                    s_extracted.append(s_extracted_data[s_extracted_data["ROI"] == roi][params[j]].values[0])
+
+                # Check whether the particle has extracted parameters (Theta)
+                if roi in th_extracted_data["ROI"].values:
+
+                    # Add x and y values
+                    th_parameters.append(particlemap_data[particlemap_data["ROI"] == roi][columns[i]].values[0])
+                    th_extracted.append(th_extracted_data[th_extracted_data["ROI"] == roi][params[j]].values[0])
+
+                # Check whether the particle has extracted parameters (Secondary)
+                if roi in sec_extracted_data["ROI"].values:
+                    # Add x and y values
+                    sec_parameters.append(particlemap_data[particlemap_data["ROI"] == roi][columns[i]].values[0])
+                    sec_extracted.append(sec_extracted_data[sec_extracted_data["ROI"] == roi][params[j]].values[0])
+
+            # Plot subplot
+            plt.subplot(321+j)
+            plt.title(columns[i]+" vs "+params[j])
+            plt.xlabel(columns[i])
+            plt.ylabel(params[j])
+            plt.scatter(s_parameters, s_extracted, label="S-phase")
+            plt.scatter(th_parameters, th_extracted, label="Theta")
+            plt.scatter(sec_parameters, sec_extracted, label="Secondary")
+
+        # Save figure
+        # plt.legend()
+        plt.savefig(output_path + f"/{case}_{columns[i]}_regression_plot.png")
         plt.clf()
 
 
 if __name__ == "__main__":
-    excel_dir = r"../Data/Original/ParticleGeomCompo_uninhb.xlsx"
-    geometry_param = "Circ."
-    rois = [1, 2, 3, 4, 5]
-    k1 = [0.1, 0.2, 0.3, 0.2, 0.1]
-    k2 = [0.1, 0.2, 0.3, 0.2, 0.1]
-    t_onset = [10, 10, 10, 10, 10]
-    t_star = [10, 10, 10, 10, 10]
-    output = r""
-
-    geometry_plotting(excel_dir, output, geometry_param, rois, k1, k2, t_onset, t_star)
+    parameter_dir = r"S:\AE\BSc-2\TAS\Data\Output\Output\Extracted Parameters\1_Uninhibited_regr_params.xlsx"
+    excel_dir = r"S:\AE\BSc-2\TAS\Data\Output\Output\Filtered Excels\Filtered_ParticleGeomCompo_uninhb.xlsx"
+    output_path = r"test_folder"
+    extracted_plotting(parameter_dir, excel_dir, output_path, "Uninhibited")
