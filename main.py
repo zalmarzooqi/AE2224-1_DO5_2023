@@ -144,9 +144,9 @@ try:
 
                 # Write image subtraction regression parameters to Excel
                 is_regr_output = pd.DataFrame(is_parameters, columns=["ROI", "Type", "k1", "k2", "t_s", "t_k", "t_f"])
-                is_regr_output_sphase = is_regr_output[is_regr_output.Type == "S-phase"]
-                is_regr_output_theta = is_regr_output[is_regr_output.Type == "Theta"]
-                is_regr_output_secondary = is_regr_output[is_regr_output.Type == "Secondary"]
+                is_regr_output_sphase = is_regr_output[is_regr_output.Type == "S-phase"].drop("Type", axis=1)
+                is_regr_output_theta = is_regr_output[is_regr_output.Type == "Theta"].drop("Type", axis=1)
+                is_regr_output_secondary = is_regr_output[is_regr_output.Type == "Secondary"].drop("Type", axis=1)
                 is_param_out_path = os.path.join(output_path, f"Extracted Parameters/{case}_regr_params_is.xlsx")
                 writing.writer_new(is_param_out_path, is_regr_output_sphase, "S-phase")
                 writing.writer_add(is_param_out_path, is_regr_output_theta, "Theta")
@@ -160,8 +160,7 @@ try:
                 # Plot the regression parameters against physical parameters (image subtraction)
                 geom_plot_output_path = os.path.join(output_path, f"Plots/Geometry/Image Subtraction/{case}")
                 case_name = case[2:]
-                geometry_plotting.extracted_plotting(param_out_path, excel_path, geom_plot_output_path, case_name)
-
+                geometry_plotting.extracted_plotting(is_param_out_path, excel_path, geom_plot_output_path, case_name)
 
         # Stop if the csv files are not found
         except FileNotFoundError:
