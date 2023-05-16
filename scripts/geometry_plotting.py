@@ -64,7 +64,7 @@ def extracted_plotting(parameter_path, excel_path, output_path, case):
 
             # Plot subplot
             # axs.add_subplot(3, 2, j+1)
-            axs[math.floor(j / 2)][j % 2].set_title(columns[i]+" vs "+params[j])
+            axs[math.floor(j / 2)][j % 2].set_title(columns[i]+"   vs "+params[j])
             axs[math.floor(j / 2)][j % 2].set_xlabel(columns[i])
             axs[math.floor(j / 2)][j % 2].set_ylabel(params[j])
             axs[math.floor(j / 2)][j % 2].scatter(s_parameters, s_extracted, label="S-phase")

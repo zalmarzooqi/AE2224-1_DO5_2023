@@ -293,17 +293,13 @@ def setup_gui(data_path):
     do_visual_regression.set(1)
     do_execution_summary = tk.IntVar()
     do_execution_summary.set(0)
-    do_image_subtraction = tk.IntVar()
-    do_image_subtraction.set(0)
     # Variable Widgets
-    do_cp_cb = tk.Checkbutton(do_frame, text="COC Plotting", variable=do_coc_plotting, command=cp_cb)
+    do_cp_cb = tk.Checkbutton(do_frame, text="Plotting", variable=do_coc_plotting, command=cp_cb)
     do_cp_cb.grid(column=0, row=2, sticky=tk.W)
-    do_is_cb = tk.Checkbutton(do_frame, text="Image Subtraction", variable=do_image_subtraction, state="disabled")
-    do_is_cb.grid(column=0, row=3, sticky=tk.W)
     do_vr_cb = tk.Checkbutton(do_frame, text="Add regression visualization", variable=do_visual_regression)
-    do_vr_cb.grid(column=0, row=4, sticky=tk.W)
+    do_vr_cb.grid(column=0, row=3, sticky=tk.W)
     do_es_cb = tk.Checkbutton(do_frame, text="Execution Summary", variable=do_execution_summary)
-    do_es_cb.grid(column=0, row=5, sticky=tk.W)
+    do_es_cb.grid(column=0, row=4, sticky=tk.W)
 
     # Bottom Frame
     # Set Labels

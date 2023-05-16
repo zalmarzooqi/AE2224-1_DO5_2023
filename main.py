@@ -50,18 +50,23 @@ csvs = [r"1_Uninhibited",
 
 csvs_used = []
 file_dirs_used = []
+is_csvs_used = []
 if "Uninhibited" in setup_gui_2.cases:
     file_dirs_used.append(file_dirs[0])
     csvs_used.append(csvs[0])
+    is_csvs_used.append("ImStCSV_1_Uninhibited.csv")
 if "Inhibited" in setup_gui_2.cases:
     file_dirs_used.append(file_dirs[1])
     csvs_used.append(csvs[1])
+    is_csvs_used.append("ImStCSV_2_Inhibited.csv")
 if "Inhibited Delayed" in setup_gui_2.cases:
     file_dirs_used.append(file_dirs[2])
     csvs_used.append(csvs[2])
+    is_csvs_used.append("ImStCSV_3_Inhibited Delayed.csv")
 if "Reimmersion" in setup_gui_2.cases:
     file_dirs_used.append(file_dirs[3])
     csvs_used.append(csvs[3])
+    is_csvs_used.append("ImStCSV_4_Reimmersed.csv")
 
 # Filter the Excel files
 for i, case in enumerate(file_dirs_used):
@@ -88,7 +93,6 @@ for i, case in enumerate(file_dirs_used):
     except FileNotFoundError:
         error_coding.error_message(data_path, 2)
 
-
 # Plot the COC vs time graphs
 try:
     # Execute if it is selected
@@ -99,18 +103,18 @@ try:
                 os.makedirs(os.path.join(output_path, "Extracted Parameters"))
 
             # Iterate over the different cases
-            for case in csvs_used:
+            for i, case in enumerate(csvs_used):
 
                 # Create an Excel file to store the parameters in
                 df = pd.DataFrame([[0, 1], [2, 3]])
-                param_out_path = os.path.join(output_path, f"Extracted Parameters/{case}_regr_params.xlsx")
+                param_out_path = os.path.join(output_path, f"Extracted Parameters/{case}_regr_params_coc.xlsx")
                 writing.writer_new(param_out_path, df, "S-phase")
 
                 # Iterate over the different types
                 for type in excel_filtering.types:
 
                     # Set headers and path
-                    parameters = []
+                    coc_parameters = []
                     folder_path = os.path.join(output_path, f"Sorted ROIs/{case}/{type}")
 
                     # Iterate over the different particles
@@ -123,20 +127,41 @@ try:
 
                         # If parameters are found, add them to list
                         if coc_regression_out:
-                            parameters.append(coc_regression_out)
+                            coc_parameters.append(coc_regression_out)
 
                     # Plot all particles together
                     coc_plotting.coc_plotting_all(case, type, folder_path, output_path)
 
-                    # Write the regression parameters to Excel
-                    regr_output = pd.DataFrame(parameters, columns=["ROI", "k1", "k2", "t_s", "t_k", "t_f"])
-                    writing.writer_add(param_out_path, regr_output, type)
+                    # Write the coc regression parameters to Excel
+                    coc_regr_output = pd.DataFrame(coc_parameters, columns=["ROI", "k1", "k2", "t_s", "t_k", "t_f"])
+                    writing.writer_add(param_out_path, coc_regr_output, type)
 
-                # Plot the regression parameters against physical parameters
+                # Apply the image subtraction method
+                is_csv_path = os.path.join(data_path, "Image Subtraction CSV", is_csvs_used[i])
                 excel_path = os.path.join(output_path, f"Filtered Excels/Filtered_{case}_ParticleMap.xlsx")
-                geom_plot_output_path = os.path.join(output_path, f"Plots/Geometry/{case}")
+                is_parameters = image_subtraction.image_subtraction_plotting(is_csv_path, output_path, case, excel_path,
+                                                                             mode=setup_gui_2.exec_add_lr_visuals)
+
+                # Write image subtraction regression parameters to Excel
+                is_regr_output = pd.DataFrame(is_parameters, columns=["ROI", "Type", "k1", "k2", "t_s", "t_k", "t_f"])
+                is_regr_output_sphase = is_regr_output[is_regr_output.Type == "S-phase"]
+                is_regr_output_theta = is_regr_output[is_regr_output.Type == "Theta"]
+                is_regr_output_secondary = is_regr_output[is_regr_output.Type == "Secondary"]
+                is_param_out_path = os.path.join(output_path, f"Extracted Parameters/{case}_regr_params_is.xlsx")
+                writing.writer_new(is_param_out_path, is_regr_output_sphase, "S-phase")
+                writing.writer_add(is_param_out_path, is_regr_output_theta, "Theta")
+                writing.writer_add(is_param_out_path, is_regr_output_secondary, "Secondary")
+
+                # Plot the regression parameters against physical parameters (coc)
+                geom_plot_output_path = os.path.join(output_path, f"Plots/Geometry/COC/{case}")
                 case_name = case[2:]
                 geometry_plotting.extracted_plotting(param_out_path, excel_path, geom_plot_output_path, case_name)
+
+                # Plot the regression parameters against physical parameters (image subtraction)
+                geom_plot_output_path = os.path.join(output_path, f"Plots/Geometry/Image Subtraction/{case}")
+                case_name = case[2:]
+                geometry_plotting.extracted_plotting(param_out_path, excel_path, geom_plot_output_path, case_name)
+
 
         # Stop if the csv files are not found
         except FileNotFoundError:

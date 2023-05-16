@@ -10,8 +10,6 @@ def coc_plotting(case, type, csv_file, output_folder, mode=1):
     if not os.path.exists(main_out_path):
         os.makedirs(main_out_path)
 
-    # Set path to folder of current case and type
-
     # Iterate over the different particles/csv files
     if csv_file[-4:] == ".csv":
         data = pd.read_csv(csv_file, header=None)          # Read file

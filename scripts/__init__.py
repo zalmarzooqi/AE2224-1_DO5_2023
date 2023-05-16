@@ -8,3 +8,4 @@ import scripts.class_check
 import scripts.linear_regression
 import scripts.geometry_plotting
 import scripts.data_correction
+import scripts.image_subtraction
