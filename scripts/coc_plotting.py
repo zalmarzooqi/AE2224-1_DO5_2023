@@ -31,7 +31,7 @@ def coc_plotting(case, type, csv_file, output_folder, mode=1):
             # Some files are weird and do not have any values past the "C" column in the csv
             # Currently I just skip these files/particles, but we may need to take a better look at them
             if i == data.shape[1]-1:
-                print(f"No pixels outside of col. C found in file {file_name[:-4]})")
+                print(f"No pixels outside of col. C found in file {file_name[:-4]}")
                 sig_col = "Stop"
         if sig_col == "Stop":
             return

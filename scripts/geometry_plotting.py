@@ -24,9 +24,9 @@ def extracted_plotting(parameter_path, excel_path, output_path, case):
 
     # Iterate over the different geometry parameters
     for i in range(len(columns)):
-
+        fig, axs = plt.subplots(3, 2, figsize=(8, 8), layout="constrained")
         # Set figure title
-        plt.suptitle(f"{columns[i]} vs regression parameters ({case})")
+        fig.suptitle(f"{columns[i]} vs regression parameters ({case})")
 
         # Iterate over the different extracted parameters
         for j in range(len(params)):
@@ -63,22 +63,28 @@ def extracted_plotting(parameter_path, excel_path, output_path, case):
                     sec_extracted.append(sec_extracted_data[sec_extracted_data["ROI"] == roi][params[j]].values[0])
 
             # Plot subplot
-            plt.subplot(321+j)
-            plt.title(columns[i]+" vs "+params[j])
-            plt.xlabel(columns[i])
-            plt.ylabel(params[j])
-            plt.scatter(s_parameters, s_extracted, label="S-phase")
-            plt.scatter(th_parameters, th_extracted, label="Theta")
-            plt.scatter(sec_parameters, sec_extracted, label="Secondary")
+            # axs.add_subplot(3, 2, j+1)
+            axs[math.floor(j / 2)][j % 2].set_title(columns[i]+" vs "+params[j])
+            axs[math.floor(j / 2)][j % 2].set_xlabel(columns[i])
+            axs[math.floor(j / 2)][j % 2].set_ylabel(params[j])
+            axs[math.floor(j / 2)][j % 2].scatter(s_parameters, s_extracted, label="S-phase")
+            axs[math.floor(j / 2)][j % 2].scatter(th_parameters, th_extracted, label="Theta")
+            axs[math.floor(j / 2)][j % 2].scatter(sec_parameters, sec_extracted, label="Secondary")
+
+        # remove the bottom right subplot
+        axs[2][1].set_visible(False)
+
+        # Create single legend
+        handles, labels = axs[0][0].get_legend_handles_labels()
+        fig.legend(handles, labels, loc=(3/5, 1/5))
 
         # Save figure
-        # plt.legend()
         plt.savefig(output_path + f"/{case}_{columns[i]}_regression_plot.png")
         plt.clf()
 
 
 if __name__ == "__main__":
-    parameter_dir = r"S:\AE\BSc-2\TAS\Data\Output\Output\Extracted Parameters\1_Uninhibited_regr_params.xlsx"
-    excel_dir = r"S:\AE\BSc-2\TAS\Data\Output\Output\Filtered Excels\Filtered_ParticleGeomCompo_uninhb.xlsx"
+    parameter_dir = r"S:\AE\BSc-2\TAS\Data\Output\Extracted Parameters\1_Uninhibited_regr_params.xlsx"
+    excel_dir = r"S:\AE\BSc-2\TAS\Data\Output\Filtered Excels\Filtered_ParticleGeomCompo_uninhb.xlsx"
     output_path = r"test_folder"
     extracted_plotting(parameter_dir, excel_dir, output_path, "Uninhibited")

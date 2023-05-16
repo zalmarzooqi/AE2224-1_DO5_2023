@@ -42,6 +42,3 @@ def create_summary(output_path=r"", geometry_parameters="parameters",
                     f"\n - N particles (geometry filtered): {geom_f_data.max(numeric_only=True)[0]}")
             if filter_mode == "Known":
                 f.write(f"\n - N particles (geometry unfiltered): {geom_u_data.max(numeric_only=True)[0]}")
-
-        # Close the file
-        f.close()

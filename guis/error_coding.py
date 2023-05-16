@@ -1,7 +1,7 @@
 from commonimports import *
 
 
-def error_message(data_path, error_code="not_found"):
+def error_message(data_path, error_code="__none__"):
     def onclick():
         root.destroy()
         sys.exit()
@@ -52,4 +52,4 @@ def error_message(data_path, error_code="not_found"):
 
 
 if __name__ == "__main__":
-    error_message(r"../Data", "test message")
+    error_message(r"../Data", "__main__")

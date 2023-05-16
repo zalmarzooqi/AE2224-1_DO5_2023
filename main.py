@@ -64,15 +64,14 @@ if "Reimmersion" in setup_gui_2.cases:
     csvs_used.append(csvs[3])
 
 # Filter the Excel files
-i = 0
-for case in file_dirs_used:
+for i, case in enumerate(file_dirs_used):
     try:
         excel_path = os.path.join(data_path, "Original", case)
     except AttributeError:
         error_coding.error_message(data_path, 2)
     if not os.path.exists(os.path.join(output_path, "Filtered Excels")):
         os.makedirs(os.path.join(output_path, "Filtered Excels"))
-    sorted_excel_path = os.path.join(output_path, "Filtered Excels/Filtered_"+case)
+    sorted_excel_path = os.path.join(output_path, f"Filtered Excels/Filtered_{csvs_used[i]}_ParticleMap.xlsx")
     try:
         excel_filtering.excel_filtering(excel_path, sorted_excel_path, cols, setup_gui_2.filter_mode)
     except FileNotFoundError:
@@ -89,7 +88,6 @@ for case in file_dirs_used:
     except FileNotFoundError:
         error_coding.error_message(data_path, 2)
 
-    i += 1
 
 # Plot the COC vs time graphs
 try:
@@ -101,7 +99,7 @@ try:
                 os.makedirs(os.path.join(output_path, "Extracted Parameters"))
 
             # Iterate over the different cases
-            for i, case in enumerate(csvs_used):
+            for case in csvs_used:
 
                 # Create an Excel file to store the parameters in
                 df = pd.DataFrame([[0, 1], [2, 3]])
@@ -135,7 +133,7 @@ try:
                     writing.writer_add(param_out_path, regr_output, type)
 
                 # Plot the regression parameters against physical parameters
-                excel_path = os.path.join(output_path, f"Filtered Excels/Filtered_{file_dirs_used[i]}")
+                excel_path = os.path.join(output_path, f"Filtered Excels/Filtered_{case}_ParticleMap.xlsx")
                 geom_plot_output_path = os.path.join(output_path, f"Plots/Geometry/{case}")
                 case_name = case[2:]
                 geometry_plotting.extracted_plotting(param_out_path, excel_path, geom_plot_output_path, case_name)
