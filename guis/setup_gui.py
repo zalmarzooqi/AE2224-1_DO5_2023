@@ -1,209 +1,320 @@
 from commonimports import *
 
 
-def setup_gui():
-    def fb_onclick():
-        global data_path
-        data_path = askdirectory()
-        if len(data_path) > 0:
-            folder_sel_label2.config(text=data_path,
-                                    fg="blue")
-
-    def ob_onclick():
+def setup_gui(data_path):
+    # Define Button Commands
+    def opb_onclick():
         global output_path
-        output_path = askdirectory() + "/Output"
+        output_path = askdirectory()
         if len(output_path) > 0:
-            output_sel_label2.config(text=output_path,
-                                     fg="blue")
+            if len(output_path) < 25:
+                output_path_sel.config(text=output_path, fg="blue")
+            else:
+                output_path_sel.config(text=".../"+output_path.split(r"/")[-1], fg="blue")
+            output_path += r"/Output"
 
-    def finb_onclick():
-        global cases
-        global filter_mode
-        global folder_mode
-        global compo_mode
-        global geometry_parameters
-        cases = []
+    def acb_onclick():
+        case_1_sel.set(1)
+        case_2_sel.set(1)
+        case_3_sel.set(1)
+        case_4_sel.set(1)
+
+    def ncb_onclick():
+        case_1_sel.set(0)
+        case_2_sel.set(0)
+        case_3_sel.set(0)
+        case_4_sel.set(0)
+
+    def apb_onclick():
+        geom_perim_sel.set(1)
+        geom_circ_sel.set(1)
+        geom_feret_sel.set(1)
+        geom_feretx_sel.set(1)
+        geom_ferety_sel.set(1)
+        geom_feretangle_sel.set(1)
+        geom_minferet_sel.set(1)
+        geom_ar_sel.set(1)
+        geom_solidity_sel.set(1)
+        geom_round_sel.set(1)
+
+    def npb_onclick():
+        geom_perim_sel.set(0)
+        geom_circ_sel.set(0)
+        geom_feret_sel.set(0)
+        geom_feretx_sel.set(0)
+        geom_ferety_sel.set(0)
+        geom_feretangle_sel.set(0)
+        geom_minferet_sel.set(0)
+        geom_ar_sel.set(0)
+        geom_solidity_sel.set(0)
+        geom_round_sel.set(0)
+
+    def rb_onclick():
+        global output_path
+        output_path = ""
+        output_path_sel.config(text="No folder selected!", fg="red")
+        ncb_onclick()
+        npb_onclick()
+        filter_mode_sel.set("Known")
+        composition_mode.set("Standard")
+        do_coc_plotting.set(1)
+        do_execution_summary.set(0)
+        do_visual_regression.set(1)
+        case_1_sel.set(1)
+        geom_circ_sel.set(1)
+
+    def fb_onclick():
+        global geometry_parameters, compo_mode, filter_mode, cases
+        global exec_coc_plotting, exec_execution_summary, exec_add_lr_visuals
         geometry_parameters = []
-        for case_used in cases_menu.curselection():
-            cases.append(cases_menu.get(case_used))
-        if geom_perim.get() == 1:
+        if geom_perim_sel.get() == 1:
             geometry_parameters.append("Perim.")
-        if geom_circ.get() == 1:
+        if geom_circ_sel.get() == 1:
             geometry_parameters.append("Circ.")
-        if geom_feret.get() == 1:
+        if geom_feret_sel.get() == 1:
             geometry_parameters.append("Feret")
-        if geom_feretx.get() == 1:
+        if geom_feretx_sel.get() == 1:
             geometry_parameters.append("FeretX")
-        if geom_ferety.get() == 1:
+        if geom_ferety_sel.get() == 1:
             geometry_parameters.append("FeretY")
-        if geom_feretangle.get() == 1:
+        if geom_feretangle_sel.get() == 1:
             geometry_parameters.append("FeretAngle")
-        if geom_minferet.get() == 1:
+        if geom_minferet_sel.get() == 1:
             geometry_parameters.append("MinFeret")
-        if geom_ar.get() == 1:
+        if geom_ar_sel.get() == 1:
             geometry_parameters.append("AR")
-        if geom_solidity.get() == 1:
+        if geom_solidity_sel.get() == 1:
             geometry_parameters.append("Solidity")
-        if geom_round.get() == 1:
+        if geom_round_sel.get() == 1:
             geometry_parameters.append("Round")
-        filter_mode = filter_sel.get()
-        folder_mode = folder_mode_sel.get()
-        compo_mode = compo_mode_sel.get()
+
+        cases = []
+        if case_1_sel.get() == 1:
+            cases.append("Uninhibited")
+        if case_2_sel.get() == 1:
+            cases.append("Inhibited")
+        if case_3_sel.get() == 1:
+            cases.append("Inhibited Delayed")
+        if case_4_sel.get() == 1:
+            cases.append("Reimmersion")
+
+        filter_mode = filter_mode_sel.get()
+        compo_mode = composition_mode.get()
+
+        exec_coc_plotting = do_coc_plotting.get()
+        exec_execution_summary = do_execution_summary.get()
+        exec_add_lr_visuals = do_visual_regression.get()
+
         root.destroy()
 
+    def cp_cb():
+        if do_coc_plotting.get() == 0:
+            do_visual_regression.set(0)
+            do_vr_cb.config(state="disabled")
+        elif do_coc_plotting.get() == 1:
+            do_vr_cb.config(state="active")
+
+    # Window
     root = tk.Tk()
-    root.title("Setup")
+    root.title("Corrosion Analysis Setup")
+    root.resizable(False, False)
+    icon_path = os.path.join(data_path, "Icons/corrosion.png")
+    icon = tk.PhotoImage(file=icon_path)
+    root.iconphoto(False, icon)
 
-    left_frame = tk.Frame(root)
-    left_frame.grid(column=0, row=0)
-    right_frame = tk.Frame(root)
-    right_frame.grid(column=1, row=0)
+    # Fonts
+    title_font = tk.font.Font(root, family="Segoe UI", size=13, weight="bold", underline=True)
+    middle_font = tk.font.Font(root, family="Segoe UI", size=11, weight="bold", underline=False)
+    default_font = tk.font.Font(root, family="Segoe UI", size=9, weight="normal", underline=False)
 
-    folder_label1 = tk.Label(left_frame,
-                             text="Select your data folder.",
-                             padx=10,
-                             pady=10)
-    folder_label1.pack()
-    folder_button = tk.Button(left_frame,
-                              text="Select folder",
-                              command=fb_onclick)
-    folder_button.pack()
-    folder_sel_label1 = tk.Label(left_frame,
-                                text="Your selected folder:",
-                                padx=10,
-                                pady=10)
-    folder_sel_label1.pack()
-    folder_sel_label2 = tk.Label(left_frame,
-                                text="No folder selected!",
-                                fg="red",
-                                padx=10,
-                                pady=5)
-    folder_sel_label2.pack()
-
-    folder_mode_label = tk.Label(left_frame,
-                                 text="Select folder mode:",
-                                 padx=10,
+    # Frames
+    folder_frame = tk.Frame(root,
+                            bd=5,
+                            relief=tk.SUNKEN,
+                            padx=5,
+                            pady=5)
+    folder_frame.grid(column=0, row=0, sticky=tk.NSEW)
+    cases_frame = tk.Frame(root,
+                           bd=5,
+                           relief=tk.SUNKEN,
+                           padx=5,
+                           pady=5)
+    cases_frame.grid(column=0, row=1, sticky=tk.NSEW)
+    geometry_frame = tk.Frame(root,
+                              bd=5,
+                              relief=tk.SUNKEN,
+                              padx=5,
+                              pady=5)
+    geometry_frame.grid(column=1, row=0, rowspan=2, sticky=tk.NSEW)
+    composition_frame = tk.Frame(root,
+                                 bd=5,
+                                 relief=tk.SUNKEN,
+                                 padx=5,
                                  pady=5)
-    folder_mode_label.pack()
-    folder_mode_options = [0, 1]
-    folder_mode_sel = tk.StringVar()
-    folder_mode_sel.set(0)
-    folder_mode_menu = tk.OptionMenu(left_frame,
-                                     folder_mode_sel,
-                                     *folder_mode_options)
-    folder_mode_menu.pack()
+    composition_frame.grid(column=0, row=2, sticky=tk.NSEW)
+    do_frame = tk.Frame(root,
+                        bd=5,
+                        relief=tk.SUNKEN,
+                        padx=5,
+                        pady=5)
+    do_frame.grid(column=1, row=2, sticky=tk.NSEW)
+    bottom_frame = tk.Frame(root,
+                            bd=10,
+                            relief=tk.SUNKEN,
+                            padx=5,
+                            pady=5)
+    bottom_frame.grid(column=0, row=3, columnspan=2, sticky=tk.NSEW)
 
-    cases_label = tk.Label(left_frame,
-                           text="Select which cases are to be analyzed:",
-                           padx=10,
-                           pady=15)
-    cases_label.pack()
-    cases_options = ["Uninhibited",
-                     "Inhibited",
-                     "Inhibited Delayed",
-                     "Reimmersed"]
-    cases_menu = tk.Listbox(left_frame,
-                            selectmode="multiple",
-                            height=len(cases_options))
-    cases_menu.pack()
-    for case in cases_options:
-        cases_menu.insert(tk.END, case)
+    # Folders Frame
+    # Set Labels
+    tk.Label(folder_frame, text="Folders", font=title_font).grid(column=0, row=0, columnspan=3)
+    tk.Label(folder_frame, text="Select the following folder", font=middle_font).grid(column=0, row=1, columnspan=3)
+    tk.Label(folder_frame, text="Output Folder:", font=default_font).grid(column=0, row=2, sticky=tk.W)
+    tk.Label(folder_frame, text="Selected Folders", font=middle_font).grid(column=0, row=3, sticky=tk.W)
+    tk.Label(folder_frame, text="Output:", font=default_font).grid(column=0, row=5, sticky=tk.W)
+    # Define Variables
 
-    parameter_label = tk.Label(right_frame,
-                               text="Select which geometry parameters are to be used in the analysis:",
-                               padx=10,
-                               pady=15)
-    parameter_label.pack()
+    # Variable Widgets
+    output_button = tk.Button(folder_frame, text="Select Folder", command=opb_onclick)
+    output_button.grid(column=1, row=2)
+    output_path_sel = tk.Label(folder_frame, text="No folder selected!", fg="red")
+    output_path_sel.grid(column=1, row=5, columnspan=3, sticky=tk.W)
 
-    geom_perim = tk.IntVar()
-    geom_perim.set(0)
-    tk.Checkbutton(right_frame, text="Perimeter", variable=geom_perim).pack()
-    geom_circ = tk.IntVar()
-    geom_circ.set(0)
-    tk.Checkbutton(right_frame, text="Circularity", variable=geom_circ).pack()
-    geom_feret = tk.IntVar()
-    geom_feret.set(0)
-    tk.Checkbutton(right_frame, text="Feret", variable=geom_feret).pack()
-    geom_feretx = tk.IntVar()
-    geom_feretx.set(0)
-    tk.Checkbutton(right_frame, text="Feret X", variable=geom_feretx).pack()
-    geom_ferety = tk.IntVar()
-    geom_ferety.set(0)
-    tk.Checkbutton(right_frame, text="Feret Y", variable=geom_ferety).pack()
-    geom_feretangle = tk.IntVar()
-    geom_feretangle.set(0)
-    tk.Checkbutton(right_frame, text="Feret Angle", variable=geom_feretangle).pack()
-    geom_minferet = tk.IntVar()
-    geom_minferet.set(0)
-    tk.Checkbutton(right_frame, text="Minimum Feret", variable=geom_minferet).pack()
-    geom_ar = tk.IntVar()
-    geom_ar.set(0)
-    tk.Checkbutton(right_frame, text="Aspect Ratio", variable=geom_ar).pack()
-    geom_round = tk.IntVar()
-    geom_round.set(0)
-    tk.Checkbutton(right_frame, text="Roundness", variable=geom_round).pack()
-    geom_solidity = tk.IntVar()
-    geom_solidity.set(0)
-    tk.Checkbutton(right_frame, text="Solidity", variable=geom_solidity).pack()
+    # Cases Frame
+    # Set Labels
+    tk.Label(cases_frame, text="Cases", font=title_font).grid(column=0, row=0, columnspan=3)
+    tk.Label(cases_frame, text="Select which cases are to be analyzed", font=middle_font).grid(column=0, row=1, columnspan=3)
+    # Define Variables
+    case_1_sel = tk.IntVar()
+    case_1_sel.set(1)
+    case_2_sel = tk.IntVar()
+    case_2_sel.set(0)
+    case_3_sel = tk.IntVar()
+    case_3_sel.set(0)
+    case_4_sel = tk.IntVar()
+    case_4_sel.set(0)
+    # Variable Widgets
+    case_1_cb = tk.Checkbutton(cases_frame, text="Uninhibited", font=default_font, variable=case_1_sel)
+    case_1_cb.grid(column=0, row=2, sticky=tk.W)
+    case_2_cb = tk.Checkbutton(cases_frame, text="Inhibited", font=default_font, variable=case_2_sel)
+    case_2_cb.grid(column=0, row=3, sticky=tk.W)
+    case_3_cb = tk.Checkbutton(cases_frame, text="Inhibited Delayed", font=default_font, variable=case_3_sel)
+    case_3_cb.grid(column=0, row=4, sticky=tk.W)
+    case_4_cb = tk.Checkbutton(cases_frame, text="Reimmersion", font=default_font, variable=case_4_sel)
+    case_4_cb.grid(column=0, row=5, sticky=tk.W)
+    all_cases_button = tk.Button(cases_frame, text="All Cases", command=acb_onclick)
+    all_cases_button.grid(column=1, row=2)
+    no_cases_button = tk.Button(cases_frame, text="No Cases", command=ncb_onclick)
+    no_cases_button.grid(column=2, row=2)
 
-    filter_label = tk.Label(right_frame,
-                            text="Select geometry filter mode (default 0):",
-                            padx=10,
-                            pady=10)
-    filter_label.pack()
-    filter_options = [0, 1]
-    filter_sel = tk.StringVar()
-    filter_sel.set(0)
-    filter_menu = tk.OptionMenu(right_frame,
-                                filter_sel,
-                                *filter_options)
-    filter_menu.pack()
+    # Geometry Frame
+    # Set Labels
+    tk.Label(geometry_frame, text="Geometry", font=title_font).grid(column=0, row=0, columnspan=3)
+    tk.Label(geometry_frame, text="Select geometry parameters", font=middle_font).grid(column=0, row=1, columnspan=3)
+    tk.Label(geometry_frame, text="\nSelect filtering mode", font=middle_font).grid(column=0, row=8, columnspan=3)
+    # Define Variables
+    geom_perim_sel = tk.IntVar()
+    geom_perim_sel.set(0)
+    geom_circ_sel = tk.IntVar()
+    geom_circ_sel.set(1)
+    geom_feret_sel = tk.IntVar()
+    geom_feret_sel.set(0)
+    geom_feretx_sel = tk.IntVar()
+    geom_feretx_sel.set(0)
+    geom_ferety_sel = tk.IntVar()
+    geom_ferety_sel.set(0)
+    geom_feretangle_sel = tk.IntVar()
+    geom_feretangle_sel.set(0)
+    geom_minferet_sel = tk.IntVar()
+    geom_minferet_sel.set(0)
+    geom_ar_sel = tk.IntVar()
+    geom_ar_sel.set(0)
+    geom_solidity_sel = tk.IntVar()
+    geom_solidity_sel.set(0)
+    geom_round_sel = tk.IntVar()
+    geom_round_sel.set(0)
+    filter_mode_sel = tk.StringVar()
+    filter_mode_sel.set("Known")
+    # Variable Widgets
+    geom_perim_cb = tk.Checkbutton(geometry_frame, text="Perimeter", variable=geom_perim_sel)
+    geom_perim_cb.grid(column=0, row=2, sticky=tk.W)
+    geom_circ_cb = tk.Checkbutton(geometry_frame, text="Circularity", variable=geom_circ_sel)
+    geom_circ_cb.grid(column=0, row=3, sticky=tk.W)
+    geom_solidity_cb = tk.Checkbutton(geometry_frame, text="Solidity", variable=geom_solidity_sel)
+    geom_solidity_cb.grid(column=0, row=4, sticky=tk.W)
+    geom_round_cb = tk.Checkbutton(geometry_frame, text="Roundness", variable=geom_round_sel)
+    geom_round_cb.grid(column=0, row=5, sticky=tk.W)
+    geom_ar_cb = tk.Checkbutton(geometry_frame, text="Aspect Ratio", variable=geom_ar_sel)
+    geom_ar_cb.grid(column=0, row=6, sticky=tk.W)
+    geom_feret_cb = tk.Checkbutton(geometry_frame, text="Feret Diameter", variable=geom_feret_sel)
+    geom_feret_cb.grid(column=1, row=2, sticky=tk.W)
+    geom_feretx_cb = tk.Checkbutton(geometry_frame, text="Feret Diameter (X)", variable=geom_feretx_sel)
+    geom_feretx_cb.grid(column=1, row=3, sticky=tk.W)
+    geom_ferety_cb = tk.Checkbutton(geometry_frame, text="Feret Diameter (Y)", variable=geom_ferety_sel)
+    geom_ferety_cb.grid(column=1, row=4, sticky=tk.W)
+    geom_feretangle_cb = tk.Checkbutton(geometry_frame, text="Feret Angle", variable=geom_feretangle_sel)
+    geom_feretangle_cb.grid(column=1, row=5, sticky=tk.W)
+    geom_minferet_cb = tk.Checkbutton(geometry_frame, text="Minimum Feret", variable=geom_minferet_sel)
+    geom_minferet_cb.grid(column=1, row=6, sticky=tk.W)
+    all_parameters_button = tk.Button(geometry_frame, text="All Parameters", command=apb_onclick)
+    all_parameters_button.grid(column=0, row=7)
+    no_parameters_button = tk.Button(geometry_frame, text="No Parameters", command=npb_onclick)
+    no_parameters_button.grid(column=1, row=7)
+    filter_option_known = tk.Radiobutton(geometry_frame, text="Known", variable=filter_mode_sel,
+                                         value="Known", font=default_font)
+    filter_option_known.grid(column=0, row=9)
+    filter_option_full = tk.Radiobutton(geometry_frame, text="Full", variable=filter_mode_sel,
+                                        value="Full", font=default_font)
+    filter_option_full.grid(column=1, row=9)
 
-    compo_mode_label = tk.Label(left_frame,
-                                text="Select composition mode:",
-                                padx=10,
-                                pady=10)
-    compo_mode_label.pack()
-    compo_mode_options = ["Standard",
-                          "Extended"]
-    compo_mode_sel = tk.StringVar()
-    compo_mode_sel.set(compo_mode_options[0])
-    compo_mode_menu = tk.OptionMenu(left_frame,
-                                    compo_mode_sel,
-                                    *compo_mode_options)
-    compo_mode_menu.pack()
+    # Composition Frame
+    # Set Labels
+    tk.Label(composition_frame, text="Composition", font=title_font).grid(column=0, row=0, columnspan=3)
+    tk.Label(composition_frame, text="Select composition mode", font=middle_font).grid(column=0, row=1, columnspan=3)
+    # Define Variables
+    composition_mode = tk.StringVar()
+    composition_mode.set("Standard")
+    # Variable Widgets
+    composition_option_standard = tk.Radiobutton(composition_frame, text="Standard",
+                                                 variable=composition_mode, value="Standard", font=default_font)
+    composition_option_standard.grid(column=0, row=2)
+    composition_option_extended = tk.Radiobutton(composition_frame, text="Extended",
+                                                 variable=composition_mode, value="Extended", font=default_font)
+    composition_option_extended.grid(column=1, row=2)
 
-    output_label = tk.Label(left_frame,
-                            text="Select the location where the output will be saved:",
-                            padx=10,
-                            pady=10)
-    output_label.pack()
-    output_button = tk.Button(left_frame,
-                              text="Select Folder",
-                              command=ob_onclick)
-    output_button.pack()
-    output_sel_label1 = tk.Label(left_frame,
-                                 text="Selected folder:",
-                                 padx=10,
-                                 pady=10)
-    output_sel_label1.pack()
-    output_sel_label2 = tk.Label(left_frame,
-                                 text="No folder selected!",
-                                 fg="red",
-                                 padx=10,
-                                 pady=5)
-    output_sel_label2.pack()
+    # Do Frame
+    # Set Labels
+    tk.Label(do_frame, text="Execute", font=title_font).grid(column=0, row=0, columnspan=3)
+    tk.Label(do_frame, text="Select what you would like to do:", font=middle_font).grid(column=0, row=1, columnspan=3)
+    # Define Variables
+    do_coc_plotting = tk.IntVar()
+    do_coc_plotting.set(1)
+    do_visual_regression = tk.IntVar()
+    do_visual_regression.set(1)
+    do_execution_summary = tk.IntVar()
+    do_execution_summary.set(0)
+    # Variable Widgets
+    do_cp_cb = tk.Checkbutton(do_frame, text="Plotting", variable=do_coc_plotting, command=cp_cb)
+    do_cp_cb.grid(column=0, row=2, sticky=tk.W)
+    do_vr_cb = tk.Checkbutton(do_frame, text="Add regression visualization", variable=do_visual_regression)
+    do_vr_cb.grid(column=0, row=3, sticky=tk.W)
+    do_es_cb = tk.Checkbutton(do_frame, text="Execution Summary", variable=do_execution_summary)
+    do_es_cb.grid(column=0, row=4, sticky=tk.W)
 
-    finish_label = tk.Label(left_frame,
-                            text="When all options are set, press the button below.",
-                            padx=10,
-                            pady=20)
-    finish_label.pack()
-    finish_button = tk.Button(left_frame,
-                              text="Pre-process Data",
-                              command=finb_onclick,
-                              padx=3,
-                              pady=10)
-    finish_button.pack()
+    # Bottom Frame
+    # Set Labels
+    tk.Label(bottom_frame, text="Bottom", font=title_font).grid(column=0, row=0, columnspan=3)
+    # Define Variables
 
+    # Variable Widgets
+    reset_button = tk.Button(bottom_frame, text="Reset Defaults", command=rb_onclick)
+    reset_button.grid(column=0, row=0, columnspan=1)
+    finish_button = tk.Button(bottom_frame, text="Finish", command=fb_onclick)
+    finish_button.grid(column=1, row=0)
+
+    # Loop window
     root.mainloop()
+
+
+if __name__ == "__main__":
+    setup_gui(r"../Data")

@@ -5,7 +5,7 @@ try:
 except AttributeError:
     data_path = r"Data"
 
-setup_gui_2.setup_gui(data_path)
+setup_gui.setup_gui(data_path)
 start_time = time.time()
 
 file_dirs = [r"ParticleGeomCompo_uninhb.xlsx",
@@ -14,23 +14,23 @@ file_dirs = [r"ParticleGeomCompo_uninhb.xlsx",
              r"ParticleGeomCompo_reim_uninhb.xlsx"]
 
 try:
-    if len(setup_gui_2.cases) == 0:
+    if len(setup_gui.cases) == 0:
         error_coding.error_message(data_path, 3)
 except AttributeError:
     error_coding.error_message(data_path, 1)
 
 try:
-    output_path = setup_gui_2.output_path
+    output_path = setup_gui.output_path
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 except AttributeError:
     error_coding.error_message(data_path, 4)
 
-if len(setup_gui_2.geometry_parameters) == 0:
+if len(setup_gui.geometry_parameters) == 0:
     cols = ["ROI", "Area", "Type"]
 else:
     cols = ["ROI", "Area", "Type"]
-    for par in setup_gui_2.geometry_parameters:
+    for par in setup_gui.geometry_parameters:
         cols.append(par)
 
 extended_compos = ["Al At%",
@@ -40,7 +40,7 @@ extended_compos = ["Al At%",
                    "Mn At%",
                    "Si At%",
                    "O At%"]
-if setup_gui_2.compo_mode == "Extended":
+if setup_gui.compo_mode == "Extended":
     cols.extend(extended_compos)
 
 csvs = [r"1_Uninhibited",
@@ -51,19 +51,19 @@ csvs = [r"1_Uninhibited",
 csvs_used = []
 file_dirs_used = []
 is_csvs_used = []
-if "Uninhibited" in setup_gui_2.cases:
+if "Uninhibited" in setup_gui.cases:
     file_dirs_used.append(file_dirs[0])
     csvs_used.append(csvs[0])
     is_csvs_used.append("ImStCSV_1_Uninhibited.csv")
-if "Inhibited" in setup_gui_2.cases:
+if "Inhibited" in setup_gui.cases:
     file_dirs_used.append(file_dirs[1])
     csvs_used.append(csvs[1])
     is_csvs_used.append("ImStCSV_2_Inhibited.csv")
-if "Inhibited Delayed" in setup_gui_2.cases:
+if "Inhibited Delayed" in setup_gui.cases:
     file_dirs_used.append(file_dirs[2])
     csvs_used.append(csvs[2])
     is_csvs_used.append("ImStCSV_3_Inhibited Delayed.csv")
-if "Reimmersion" in setup_gui_2.cases:
+if "Reimmersion" in setup_gui.cases:
     file_dirs_used.append(file_dirs[3])
     csvs_used.append(csvs[3])
     is_csvs_used.append("ImStCSV_4_Reimmersed.csv")
@@ -78,7 +78,7 @@ for i, case in enumerate(file_dirs_used):
         os.makedirs(os.path.join(output_path, "Filtered Excels"))
     sorted_excel_path = os.path.join(output_path, f"Filtered Excels/Filtered_{csvs_used[i]}_ParticleMap.xlsx")
     try:
-        excel_filtering.excel_filtering(excel_path, sorted_excel_path, cols, setup_gui_2.filter_mode)
+        excel_filtering.excel_filtering(excel_path, sorted_excel_path, cols, setup_gui.filter_mode)
     except FileNotFoundError:
         error_coding.error_message(data_path, 2)
 
@@ -96,7 +96,7 @@ for i, case in enumerate(file_dirs_used):
 # Plot the COC vs time graphs
 try:
     # Execute if it is selected
-    if setup_gui_2.exec_coc_plotting == 1:
+    if setup_gui.exec_coc_plotting == 1:
         try:
             # Create directory to save the parameter Excel files in
             if not os.path.exists(os.path.join(output_path, "Extracted Parameters")):
@@ -123,7 +123,7 @@ try:
                         # Set path, find regression parameters and plot
                         file_path = os.path.join(folder_path, csv_file)
                         coc_regression_out = coc_plotting.coc_plotting(case, type, file_path, output_path,
-                                                                       mode=setup_gui_2.exec_add_lr_visuals)
+                                                                       mode=setup_gui.exec_add_lr_visuals)
 
                         # If parameters are found, add them to list
                         if coc_regression_out:
@@ -140,7 +140,7 @@ try:
                 is_csv_path = os.path.join(data_path, "Image Subtraction CSV", is_csvs_used[i])
                 excel_path = os.path.join(output_path, f"Filtered Excels/Filtered_{case}_ParticleMap.xlsx")
                 is_parameters = image_subtraction.image_subtraction_plotting(is_csv_path, output_path, case, excel_path,
-                                                                             mode=setup_gui_2.exec_add_lr_visuals)
+                                                                             mode=setup_gui.exec_add_lr_visuals)
 
                 # Write image subtraction regression parameters to Excel
                 is_regr_output = pd.DataFrame(is_parameters, columns=["ROI", "Type", "k1", "k2", "t_s", "t_k", "t_f"])
@@ -172,9 +172,9 @@ except AttributeError:
 
 # Create execution summary
 try:
-    if setup_gui_2.exec_execution_summary == 1:
-        execution_summary.create_summary(output_path, setup_gui_2.geometry_parameters, setup_gui_2.filter_mode,
-                                         setup_gui_2.cases, setup_gui_2.compo_mode)
+    if setup_gui.exec_execution_summary == 1:
+        execution_summary.create_summary(output_path, setup_gui.geometry_parameters, setup_gui.filter_mode,
+                                         setup_gui.cases, setup_gui.compo_mode)
 except AttributeError:
     error_coding.error_message(data_path, 5)
 
